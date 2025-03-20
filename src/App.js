@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './components/navbar/NavBar'; // Import Navbar component
 
 function App() {
 
-  const [theme, setTheme] = useState('light');
+  const current_theme = localStorage.getItem('theme');
+  const [theme, setTheme] = useState(current_theme ? current_theme : 'light');
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   return (
     <div className={`container ${theme}`}>
