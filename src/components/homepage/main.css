@@ -1,0 +1,35 @@
+.homepage-container {
+    text-align: center;
+}
+
+.input-container {
+    margin-bottom: 10px;
+}
+
+.input-container label {
+    margin-right: 15px;
+}
+
+.wheel-container {
+    position: relative;
+    display: inline-block;
+    margin: 20px;
+}
+
+.wheel {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 3px solid #333;
+}
+
+.pointer {
+    position: absolute;
+    width: 2px;
+    height: 80px;
+    background-color: red;
+    top: 50%;
+    left: 50%;
+    transform-origin: top center;
+    transition: transform 3s ease-out;
+}

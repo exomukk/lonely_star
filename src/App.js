@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from './components/navbar/NavBar'; // Import Navbar component
+import HomePage from './components/homepage/main'; // Import HomePage component
 
 function App() {
 
@@ -11,9 +12,9 @@ function App() {
   }, [theme]);
 
   return (
-    <div className={`container ${theme}`}>
+    <div className={`container ${theme}`} style={{ minHeight: '100vh' }}>
       <Navbar theme={theme} setTheme={setTheme}/>
-      <h1>Welcome to My React App</h1>
+      <HomePage />
     </div>
   );
 }
