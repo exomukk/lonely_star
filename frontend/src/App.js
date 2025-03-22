@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from './components/navbar/NavBar'; // Import Navbar component
-import HomePage from './components/homepage/main'; // Import HomePage component
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import Navbar from './components/navbar/NavBar';
+import HomePage from './components/homepage/main';
+import Login from './components/login/login';
+import Register from './components/register/register';
 
 function App() {
 
@@ -12,10 +15,16 @@ function App() {
   }, [theme]);
 
   return (
-    <div className={`container ${theme}`} style={{ minHeight: '100vh' }}>
-      <Navbar theme={theme} setTheme={setTheme}/>
-      <HomePage />
-    </div>
+    <Router>
+      <div className={`container ${theme}`} style={{ minHeight: '100vh' }}>
+        <Navbar theme={theme} setTheme={setTheme}/>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
