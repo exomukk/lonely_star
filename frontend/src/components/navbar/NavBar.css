@@ -54,3 +54,50 @@ ul li a {
 .dark ul li:hover {
     background-color: #333;
 }
+
+/* Khi đã đăng nhập, ô user có dropdown */
+.nav-user {
+    position: relative;
+    /* để dropdown bám theo */
+}
+
+/* Dropdown hiển thị khi showDropdown = true (React sẽ render điều kiện) */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    /* ngay dưới tên user */
+    left: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    min-width: 120px;
+    display: flex;
+    /* xếp dọc các item */
+    flex-direction: column;
+    z-index: 999;
+    /* tránh bị che bởi phần tử khác */
+}
+
+.dropdown-menu a {
+    color: #333;
+    padding: 0.25rem 0;
+    text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+    background-color: #ced8ff;
+}
+
+/* Dropdown khi ở dark mode */
+.dark .dropdown-menu {
+    background-color: #000;
+    border-color: #333;
+}
+
+.dark .dropdown-menu a {
+    color: #fff;
+}
+
+.dark .dropdown-menu a:hover {
+    background-color: #333;
+}

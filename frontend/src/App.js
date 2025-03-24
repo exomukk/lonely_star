@@ -4,6 +4,7 @@ import Navbar from './components/navbar/NavBar';
 import HomePage from './components/homepage/main';
 import Login from './components/login/login';
 import Register from './components/register/register';
+import UserProfile from './components/userprofile/UserProfile';
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/user" element={<UserProfile />} />
         </Routes>
       </div>
     </Router>
