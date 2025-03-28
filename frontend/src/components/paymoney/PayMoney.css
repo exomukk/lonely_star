@@ -1,0 +1,98 @@
+/* src/components/paymoney/PayMoney.css */
+.paymoney-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background: linear-gradient(120deg, #6a11cb, #2575fc);
+    min-height: 100vh;
+}
+
+.paymoney-card {
+    width: 400px;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.paymoney-card h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #555;
+}
+
+.paymoney-card input,
+.paymoney-card select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.paymoney-card button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #2575fc;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+.paymoney-card button:hover {
+    background-color: #1a5cb8;
+}
+
+.qr-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.qr-popup {
+    position: relative;
+    margin: 5rem auto;
+    padding: 2rem;
+    background: #fff;
+    width: 320px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.qr-popup h2 {
+    margin-bottom: 1rem;
+}
+
+.qr-popup img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.close-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+}

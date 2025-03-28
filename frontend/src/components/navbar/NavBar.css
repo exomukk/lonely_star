@@ -6,6 +6,7 @@
     background: #fff;
     padding: none;
     transition: 0.5s;
+    position: relative;
 }
 
 ul {
@@ -100,4 +101,99 @@ ul li a {
 
 .dark .dropdown-menu a:hover {
     background-color: #333;
+}
+
+/* Thêm style cho mobile menu icon (mặc định ẩn) */
+.mobile-menu-icon {
+    display: none;
+}
+
+/* Responsive cho Tablet: giảm font và icon */
+@media (max-width: 768px) {
+    .navbar ul li {
+        font-size: 16px;
+        padding: 8px 16px;
+    }
+
+    .toggle-icon {
+        width: 40px;
+        margin-right: 20px;
+    }
+}
+
+/* Responsive cho Mobile: ẩn menu gốc và hiển thị dropdown */
+@media (max-width: 480px) {
+
+    /* Ẩn menu ngang */
+    .navbar ul {
+        display: none;
+    }
+
+    .mobile-dropdown ul {
+        list-style: none;
+        /* Bỏ dấu chấm */
+        margin: 0;
+        padding: 0;
+    }
+
+    .mobile-dropdown ul li a {
+        text-decoration: none;
+        /* Bỏ gạch chân */
+        color: #333;
+    }
+
+    .mobile-dropdown ul li a:hover {
+        background-color: #ced8ff;
+        /* Tuỳ chỉnh màu hover */
+    }
+
+    /* Hiển thị icon hamburger */
+    .mobile-menu-icon {
+        display: block;
+        font-size: 24px;
+        cursor: pointer;
+        margin-left: 20px;
+    }
+
+    /* Dropdown cho mobile */
+    .mobile-dropdown {
+        position: absolute;
+        /* Nếu navbar cao ~60px, bạn để top: 60px */
+        /* Nếu muốn dính hẳn lên navbar, để top: 0 */
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background-color: #fff;
+        border-top: 1px solid #ccc;
+        z-index: 1000;
+    }
+
+    /* Bỏ dấu chấm ở đầu <li> */
+    .mobile-dropdown ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .mobile-dropdown ul li {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    /* Bỏ gạch chân, màu xanh, thêm hover cho link */
+    .mobile-dropdown ul li a {
+        text-decoration: none;
+        color: #333;
+        display: block;
+        /* để dễ click full dòng */
+    }
+
+    .mobile-dropdown ul li a:hover {
+        background-color: #f0f0f0;
+    }
+
+    /* Nếu muốn bỏ border cho item cuối */
+    .mobile-dropdown ul li:last-child {
+        border-bottom: none;
+    }
 }
