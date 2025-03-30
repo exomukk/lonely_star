@@ -6,13 +6,14 @@ app = Flask(__name__)
 # Use CORS temporary for development
 
 CORS(app, origins=["http:/localhost:3000"])
+
 # Future configuration for production
 
 @app.route('/')
 @app.route('/index')
 @app.route('/home')
 def entrypoint():
-    return "main.html"
+    return "../main.html"
 
 
 

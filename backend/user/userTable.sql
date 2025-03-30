@@ -1,0 +1,7 @@
+CREATE TABLE user (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    LUCKY_SEED VARCHAR(255)
+);
