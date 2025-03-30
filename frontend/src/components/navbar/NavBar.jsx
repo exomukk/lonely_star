@@ -32,7 +32,7 @@ const Navbar = () => {
       {/* Menu ngang cho tablet & desktop */}
       <ul className="nav-list">
         <li><a href="/">Home</a></li>
-        <li><a href="#about">Leaderboard</a></li>
+        <li><a href="/leaderboard">Leaderboard</a></li>
         <li><a href="#mini-games">Mini-games</a></li>
 
         {user ? (

@@ -6,6 +6,7 @@ import Login from './components/login/login';
 import Register from './components/register/register';
 import UserProfile from './components/userprofile/UserProfile';
 import PayMoney from './components/paymoney/PayMoney';
+import Leaderboard from './components/leaderboard/leaderboard';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/user" element={<UserProfile />} />
           <Route path="/paymoney" element={<PayMoney />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
         </Routes>
       </div>
     </Router>
