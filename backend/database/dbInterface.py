@@ -1,4 +1,5 @@
 import sqlite3
+import time
 
 from injector import singleton
 
@@ -9,24 +10,54 @@ class DatabaseInterface:
     def __init__(self):
         self.connection = sqlite3.connect('database.db')
         self.cursor = self.connection.cursor()
-        self.create_table('user/userTable.sql')
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user'")
+        table_exists = self.cursor.fetchone() is not None
+        if not table_exists:
+            with open('user/userTable.sql', 'r') as file:
+                sql_script = file.read()
+                self.cursor.execute(sql_script)
+        self.cursor.close()
+        self.connection.close()
 
-    def create_table(self,path):
-        with open(path,'r') as file:
-            sql_script = file.read()
-        self.cursor.execute(sql_script)
+    def insertingUser(self, userInfo: user):
+        retry_count = 0
+        max_retries = 10
 
-    def insertingUser(self,userInfo:user):
-        name = userInfo.name
-        username = userInfo.username
-        password = userInfo.password
-        lucky_seed = userInfo.lucky_seed
-        self.cursor.execute("insert into users (name, username, password, lucky_seed) values (?,?,?,?)",(name,username,password,lucky_seed))
+        while retry_count < max_retries:
+            try:
+                connection = sqlite3.connect('database.db', timeout=10.0)  # Add timeout
+                cursor = connection.cursor()
+                print(1)
+                name = userInfo.name
+                username = userInfo.username
+                password = userInfo.password
+                lucky_seed = userInfo.lucky_seed
+                print(2)
+                cursor.execute("INSERT INTO user (name, username, password, lucky_seed) VALUES (?,?,?,?)",
+                               (name, username, password, lucky_seed))
+                connection.commit()
+                print(3)
+                cursor.close()
+                connection.close()
+                return True
+            except sqlite3.OperationalError as e:
+                if "database is locked" in str(e) and retry_count < max_retries - 1:
+                    retry_count += 1
+                    time.sleep(0.5)
+                    continue
+                print(f"Database error after {retry_count} retries: {e}")
+                return False
+            except sqlite3.IntegrityError:
+                return False
+            except Exception as e:
+                print(f"Error inserting user: {e}")
+                return False
 
     def login(self, username, password):
-        self.cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
-        data = self.cursor.fetchone()[3]
-        if password == data:
-            return True
-        else:
-            return False
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM user WHERE username = ? AND password = ?", (username, password))
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        return result is not None
