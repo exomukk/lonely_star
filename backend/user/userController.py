@@ -1,6 +1,6 @@
 import json
 
-import app
+# import app
 from user.userService import userService
 from flask import jsonify
 

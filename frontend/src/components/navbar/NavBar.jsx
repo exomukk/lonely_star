@@ -1,21 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './NavBar.css';
 
 const Navbar = () => {
   // Giả lập user state: null = chưa đăng nhập, 'béo' = đã đăng nhập
-  const [user, setUser] = useState('béo');
-  // const [user, setUser] = useState(null);
+  // const [user, setUser] = useState('béo');
+  const [user, setUser] = useState(null);
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+  useEffect(() => {
+    // Giả lập việc lấy thông tin user từ localStorage hoặc API
+    const username = localStorage.getItem('username');
+    if (username) {
+      setUser(username);
+    }
+  }, []);
 
   const handleUserClick = () => {
     setShowDropdown(!showDropdown);
   };
 
   const handleLogout = () => {
-    // Logic đăng xuất thật có thể là xóa token, gọi API, ...
-    setUser(null);
+    // Xóa thông tin user khỏi localStorage
+    localStorage.removeItem('username');
+    setUser(null); 
     setShowDropdown(false);
   };
 
