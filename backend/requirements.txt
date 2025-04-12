@@ -1,0 +1,5 @@
+injector~=0.22.0
+Flask-JWT-Extended~=4.7.1
+Flask~=3.1.0
+flask-cors~=5.0.1
+bcrypt~=4.3.0
