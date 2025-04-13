@@ -10,16 +10,15 @@ app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
 #Websocket configuration
-socket = SocketIO(app,cors_allowed_origins="http://localhost:3000")
+#socket = SocketIO(app,cors_allowed_origins="http://localhost:3000")
 
 # Future configuration for production
 
 # Services importation
-import socket.socketService as socketServiceInterface
-socketService = socketServiceInterface.SocketService()
+#socketService = socketServiceInterface.SocketService()
 
-import socket.socketController as socketControllerInterface
-socketController = socketControllerInterface.SocketController(socket, socketService)
+#import socket.socketController as socketControllerInterface
+#socketController = socketControllerInterface.SocketController(socket, socketService)
 
 import user.userController as userControllerInterface
 userController = userControllerInterface.userController()
