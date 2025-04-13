@@ -10,12 +10,21 @@ class DatabaseInterface:
     def __init__(self):
         self.connection = sqlite3.connect('database.db')
         self.cursor = self.connection.cursor()
+
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user'")
         table_exists = self.cursor.fetchone() is not None
         if not table_exists:
             with open('user/userTable.sql', 'r') as file:
                 sql_script = file.read()
                 self.cursor.execute(sql_script)
+
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='blacklist'")
+        blacklist_table_exists = self.cursor.fetchone() is not None
+        if not blacklist_table_exists:
+            with open('blacklist/blacklist.sql', 'r') as file:
+                sql_script = file.read()
+                self.cursor.execute(sql_script)
+
         self.cursor.close()
         self.connection.close()
 
@@ -27,16 +36,13 @@ class DatabaseInterface:
             try:
                 connection = sqlite3.connect('database.db', timeout=10.0)  # Add timeout
                 cursor = connection.cursor()
-                print(1)
                 name = userInfo.name
                 username = userInfo.username
                 password = userInfo.password
                 lucky_seed = userInfo.lucky_seed
-                print(2)
                 cursor.execute("INSERT INTO user (name, username, password, lucky_seed) VALUES (?,?,?,?)",
                                (name, username, password, lucky_seed))
                 connection.commit()
-                print(3)
                 cursor.close()
                 connection.close()
                 return True
@@ -61,3 +67,11 @@ class DatabaseInterface:
         cursor.close()
         connection.close()
         return result is not None
+
+    def addToBlacklist(self, jwt):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO blacklist (jwt) VALUES (?)", (jwt,))
+        connection.commit()
+        cursor.close()
+        connection.close()
