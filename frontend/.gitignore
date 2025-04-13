@@ -24,3 +24,6 @@ yarn-error.log*
 
 # ignore __pycache__ folder
 __pycache__/
+
+# ignore .idea folder
+.idea/
