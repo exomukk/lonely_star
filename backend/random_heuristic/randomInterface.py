@@ -1,5 +1,6 @@
 import hashlib
 import time
+import secrets
 from injector import inject, singleton, Injector
 class randomInterface:
     def __init__(self):
@@ -20,7 +21,7 @@ class randomInterface:
             out+=str(ord(i))
         return out
     def pseudo_random(self):
-        now = str(time.time())
+        now = str(int(time.time())*1000 ^ int(secrets.randbits(128)))
         hash_obj = hashlib.sha256(now.encode())
         hex_digest = hash_obj.hexdigest()
         return hex_digest
