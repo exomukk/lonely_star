@@ -1,7 +1,9 @@
 import json
-from flask_jwt_extended import create_access_token
 
+# import app
 from user.userService import userService
+from flask import jsonify
+
 from random_heuristic import randomInterface
 
 
@@ -10,21 +12,19 @@ class userController:
         self.userService = userService()
         self.randomTool = randomInterface.randomInterface()
         pass
-
-
     def login(self, inputs):
+
         input_loaded = json.loads(inputs)
         username = input_loaded['username']
         password = input_loaded['password']
         if self.userService.login(username,password):
-            jwt = create_access_token(identity=username)
+            session = self.randomTool.pseudo_random()
             return {
                 'status': 'success',
-                'jwt': jwt
-            },jwt
+                'session': session
+            }
         else:
             return {'status': 'error', 'message': 'Invalid username or password'}
-
     def register(self, inputs):
         try:
             input_loaded = json.loads(inputs)
