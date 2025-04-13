@@ -10,7 +10,6 @@ const Login = () => {
 
   const [errorMessage, setErrorMessage] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState('');
-  // const history = useHistory();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -27,6 +26,7 @@ const Login = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData),
+        credentials: 'include'
       });
 
       const result = await response.json();
@@ -35,7 +35,6 @@ const Login = () => {
       if (result.status === 'success') {
         setSuccessMessage('Login successful! Redirecting...');
         setErrorMessage('');
-        localStorage.setItem('username', formData.username);
         window.location.href = '/';
       } else {
         setErrorMessage(result.message || 'Login failed. Please try again.');

@@ -2,30 +2,67 @@ import React, { useEffect, useState } from 'react';
 import './NavBar.css';
 
 const Navbar = () => {
-  // Giả lập user state: null = chưa đăng nhập, 'béo' = đã đăng nhập
-  // const [user, setUser] = useState('béo');
-  const [user, setUser] = useState(null);
-
+  const [user, setUser] = useState(null); // Ban đầu chưa có user
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   useEffect(() => {
-    // Giả lập việc lấy thông tin user từ localStorage hoặc API
-    const username = localStorage.getItem('username');
-    if (username) {
-      setUser(username);
-    }
-  }, []);
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/me', {
+          method: 'GET',
+          credentials: 'include',  // Gửi cookie kèm theo request
+        });
+
+        if (response.status === 401) {
+          // 401 => token không hợp lệ, set user = null, KHÔNG log gì thêm
+          setUser(null);
+          return;
+        }
+
+        if (!response.ok) {
+          // Các mã lỗi khác (404, 500...) => tuỳ bạn muốn xử lý hay log
+          console.error('Error status:', response.status);
+          setUser(null);
+          return;
+        }
+  
+        // Chuyển response thành JSON và log kết quả
+        const data = await response.json();
+  
+        if (data.status === 'success' && data.username) {
+          setUser(data.username);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        setUser(null);
+      }
+    };
+  
+    fetchUser();
+  }, []);  
 
   const handleUserClick = () => {
     setShowDropdown(!showDropdown);
   };
 
-  const handleLogout = () => {
-    // Xóa thông tin user khỏi localStorage
-    localStorage.removeItem('username');
-    setUser(null); 
-    setShowDropdown(false);
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/logout', {
+        method: 'POST',
+        credentials: 'include',  // Gửi cookie kèm theo request
+      });
+      const result = await response.json();
+      console.log('Logout response:', result);
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Sau khi logout (dù có lỗi hay không), xoá thông tin user ở client
+      setUser(null);
+      setShowDropdown(false);
+      window.location.href = '/';
+    }
   };
 
   return (
@@ -46,8 +83,7 @@ const Navbar = () => {
 
         {user ? (
           <li className="nav-user" onClick={handleUserClick}>
-            {user}
-            {/* Dropdown hiển thị khi showDropdown = true */}
+            {user} {/* Hiển thị tên người dùng */}
             {showDropdown && (
               <div className="dropdown-menu">
                 <a href="#!" onClick={handleLogout}>Đăng xuất</a>
