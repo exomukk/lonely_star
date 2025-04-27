@@ -662,7 +662,7 @@
   "MAC-10 | Palm": {
     "name": "MAC-10 | Palm",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou7umeldfwOP3YTxO4eO6nYeDg7mlYOnSlzgH7cR007iYoIrx2AHlqBY-YzjydY7AdwFvN13UqFntwe_om9bi61Pj6SDZ/512fx384f",
-    "price": 160.29
+    "price": 0.08
   },
   "Tec-9 | VariCamo": {
     "name": "Tec-9 | VariCamo",
@@ -797,7 +797,7 @@
   "PP-Bizon | Night Ops": {
     "name": "PP-Bizon | Night Ops",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpotLO_JAlf2-r3ZzxQ5d-3mY-0mf7zO6_ummJW4NE_ibqXrd33jAyyrxE_Yz37I4GcIwBqaFGG-gPtkr3php7q78vBnXY1vj5iuyh3J87oJg/512fx384f",
-    "price": 34.67
+    "price": 0.10
   },
   "P90 | Teardown": {
     "name": "P90 | Teardown",
@@ -877,7 +877,7 @@
   "SG 553 | Gator Mesh": {
     "name": "SG 553 | Gator Mesh",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpopb3wflFfwOP3fDhR5OOmjZSDmPnLP7LWnn8f7Zwo0rzD8d72jgLmrhdpYWj3IIWdewQ6aFrZ-wTowL27hsW4upSbzGwj5HfUEVYsXg/512fx384f",
-    "price": 174.06
+    "price": 0.12
   },
   "Galil AR | Hunting Blind": {
     "name": "Galil AR | Hunting Blind",
@@ -932,7 +932,7 @@
   "M249 | Gator Mesh": {
     "name": "M249 | Gator Mesh",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-jxcjhzw8zFdC5K08yvgIiEmcj4OrzZgiVSv5Nw3e-WpN_0jFbj-EVkMjqmIoecelQ9Y12F-QPtwOe-18S8upzI1zI97cXFqi7u/512fx384f",
-    "price": 67.98
+    "price": 1.05
   },
   "Galil AR | VariCamo": {
     "name": "Galil AR | VariCamo",
@@ -1902,7 +1902,7 @@
   "SSG 08 | Abyss": {
     "name": "SSG 08 | Abyss",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpopamie19f0uL3fThU5d2inIGFqPv9NLPF2DsHuJwh37vHoN7wjFK38ks9Z2mlJdSdclNoNQ7Z_QK4x73mh8W1vZzXiSw02gYholY/512fx384f",
-    "price": 12.12
+    "price": 3.7
   },
   "UMP-45 | Labyrinth": {
     "name": "UMP-45 | Labyrinth",
@@ -3287,7 +3287,7 @@
   "AUG | Ricochet": {
     "name": "AUG | Ricochet",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot6-iFAZt7PLddgJI-dG0mIW0m_7zO6-fkjpX65Um2evA9tX2jQDl80I4ZjqmIYKVJAFoMArV_VjtwL290JK8uoOJlyUdLwiicA/512fx384f",
-    "price": 127.46
+    "price": 5.06
   },
   "Desert Eagle | Corinthian": {
     "name": "Desert Eagle | Corinthian",
@@ -3832,7 +3832,7 @@
   "AK-47 | Neon Revolution": {
     "name": "AK-47 | Neon Revolution",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV0924lZKIn-7LP7LWnn8f7JMi27iUoNjz2gzl-UFqYjvwI4WUJw8-YA3ZqQS-wufp1pC66JSfz2wj5HeIT2OEaw/512fx384f",
-    "price": 5.0
+    "price": 27.46
   },
   "AUG | Syd Mead": {
     "name": "AUG | Syd Mead",
@@ -3912,7 +3912,7 @@
   "XM1014 | Slipstream": {
     "name": "XM1014 | Slipstream",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgporrf0e1Y07PvRTiVPvYznwL-Nhfb3J7rdqWld_cBOhuDG_Zi72gPg-kpkNmH1LdecclM-N1nXqQC9xe-705e56M6YnHNhsyIhsS3fywv330-alhoksw/512fx384f",
-    "price": 66.33
+    "price": 3.6
   },
   "CZ75-Auto | Polymer": {
     "name": "CZ75-Auto | Polymer",
@@ -4072,7 +4072,7 @@
   "M4A1-S | Decimator": {
     "name": "M4A1-S | Decimator",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uOxh7-Gw_alDL_UlWJc6dF-mNbN_Iv9nBrn-EI9MjjzctfBJwM-aFjT-ALtlb_s1Me8v5qayXtivXEi5HnbzRPkn1gSOcpKU1BE/512fx384f",
-    "price": 106.81
+    "price": 16.07
   },
   "AK-47 | Bloodsport": {
     "name": "AK-47 | Bloodsport",
@@ -4427,7 +4427,7 @@
   "R8 Revolver | Grip": {
     "name": "R8 Revolver | Grip",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpopL-zJAt21uH3di59_tmgm4ydkuXLJ6nUl29u5Mx2gv2Po9Sl0FHg-kE5ZDv2JIWXdwBvYlnZ_1Hvk-rohMW4vJTPzCMxsnNx7WGdwUJm16m2XA/512fx384f",
-    "price": 114.82
+    "price": 10.37
   },
   "SG 553 | Aloha": {
     "name": "SG 553 | Aloha",
@@ -4552,7 +4552,7 @@
   "M4A1-S | Nightmare": {
     "name": "M4A1-S | Nightmare",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uO1gb-Gw_alIITfn2xZ_MhwmOz--YXygED6rkFvaj37INXEdwI-YlmD-gK9l-u815C7vs-fziQ1uiQgtHnfmBCx0AYMMLI3JBWfRQ/512fx384f",
-    "price": 24.98
+    "price": 36.37
   },
   "Sawed-Off | Devourer": {
     "name": "Sawed-Off | Devourer",
@@ -4847,7 +4847,7 @@
   "UMP-45 | Facility Dark": {
     "name": "UMP-45 | Facility Dark",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo7e1f1Jf2-r3czFX6cyknY6fqPX4Jr7Dk29u5Mx2gv2PpYqlilK3rxdtYTr1JoGVJ1I2MguF-lK8xuvo1sS8tMmdznVnuHEmt2GdwUJlUl4wgA/512fx384f",
-    "price": 198.71
+    "price": 0.08
   },
   "Five-SeveN | Coolant": {
     "name": "Five-SeveN | Coolant",
@@ -4892,7 +4892,7 @@
   "P250 | Exchanger": {
     "name": "P250 | Exchanger",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpopujwezhoyszMZD5W_-O0mJWOqPv9NLPF2DoIv5103rmWpIjw3gTj8xFkZm70JdLGJgZqYlzTrwLvyem60Z-6upXXiSw0_RMru_M/512fx384f",
-    "price": 79.52
+    "price": 0.19
   },
   "AWP | Acheron": {
     "name": "AWP | Acheron",
@@ -4927,7 +4927,7 @@
   "UMP-45 | Mudder": {
     "name": "UMP-45 | Mudder",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo7e1f1Jf2-r3fDJW-NCzkL-YlvnwDLfYkWNFppEo2OuW9o2hilWwqRBtZmv7LdCUe1Q4N1HSrFXrxui60Za46ZubyiN9-n51RBCOqGI/512fx384f",
-    "price": 42.66
+    "price": 0.05
   },
   "MP5-SD | Dirt Drop": {
     "name": "MP5-SD | Dirt Drop",
@@ -4937,7 +4937,7 @@
   "MP9 | Slide": {
     "name": "MP9 | Slide",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou6r8FA957ODYfTxW-Nmkx7-HnvD8J_WIxWkCupYj37-V9omt3AKyrUM_MmumLIadcwZraQvTqFa-lO_tjMK-ot2Xni7s7JiL/512fx384f",
-    "price": 29.24
+    "price": 0.03
   },
   "AUG | Sweeper": {
     "name": "AUG | Sweeper",
@@ -5142,7 +5142,7 @@
   "AWP | Atheris": {
     "name": "AWP | Atheris",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17PLfYQJU5cyzhr-HnvD8J_WGk28Eu50jj-uRrYrwiw3t8xA6Ym37d9KdIAVrYQzSqFC4xe26h5a0ot2XnmA6HhwT/512fx384f",
-    "price": 192.99
+    "price": 27.36
   },
   "Tec-9 | Bamboozle": {
     "name": "Tec-9 | Bamboozle",
@@ -6677,7 +6677,7 @@
   "Desert Eagle | Trigger Discipline": {
     "name": "Desert Eagle | Trigger Discipline",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PDdTjlH7duJgJKCkPDxIYTVn3hS4dV9g-fEyoD8j1yg5UY_ZjuhcI-RegNvZFqF-Fnqxu28jcK57pWaz3VrunFw5X2OzBSxgxxSLrs4V57hwhU/512fx384f",
-    "price": 172.09
+    "price": 1.8
   },
   "MP9 | Food Chain": {
     "name": "MP9 | Food Chain",
@@ -6692,7 +6692,7 @@
   "Galil AR | Chromatic Aberration": {
     "name": "Galil AR | Chromatic Aberration",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbupIgthwczLZAJF7dC_mL-In-X7PrruhmJf4_p9g-7J4cKi3gXi-RVtYmihLIaUJgc4YF2G-Fi6kObugcW_vsjNz3NquiMk4nyJgVXp1gPanSng/512fx384f",
-    "price": 140.27
+    "price": 2.89
   },
   "USP-S | The Traitor": {
     "name": "USP-S | The Traitor",
@@ -7457,7 +7457,7 @@
   "AK-47 | Ice Coaled": {
     "name": "AK-47 | Ice Coaled",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5k5SDnvnzIITdn2xZ_Pp9i_vG8MKsigDi_Es9ZGmgJ4eQJwNqZ1iB-FG9xe3p15HttZianXYwv3RxtnfUgVXp1lJgFZ41/512fx384f",
-    "price": 85.76
+    "price": 25.06
   },
   "P250 | Visions": {
     "name": "P250 | Visions",
@@ -7732,7 +7732,7 @@
   "USP-S | Jawbreaker": {
     "name": "USP-S | Jawbreaker",
     "image": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo6m1FBRp3_bGcjhQ08mlhJO0k_jzNKLummJW4NE_iLGVpN-n3Qfs-RFtY2DzIo-TIFM8Ml7Zqwfow7js08W-vprAn3I16T5iuygX9mc8ew/512fx384f",
-    "price": 196.91
+    "price": 36
   },
   "AWP | Chrome Cannon": {
     "name": "AWP | Chrome Cannon",
