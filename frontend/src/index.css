@@ -22,7 +22,7 @@ code {
 .container {
   width: 100vw;
   min-height: 100vh;
-  background: #ced8ff;
+  background: linear-gradient(120deg, #6a11cb, #2575fc);
 }
 
 .container.dark {

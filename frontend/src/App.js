@@ -1,29 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/navbar/NavBar';
 import HomePage from './components/homepage/main';
 import Login from './components/login/login';
 import Register from './components/register/register';
 import UserProfile from './components/userprofile/UserProfile';
+import PayMoney from './components/paymoney/PayMoney';
+import Leaderboard from './components/leaderboard/leaderboard';
 
 function App() {
-
-  const current_theme = localStorage.getItem('theme');
-  const [theme, setTheme] = useState(current_theme ? current_theme : 'light');
-
-  useEffect(() => {
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
   return (
     <Router>
-      <div className={`container ${theme}`} style={{ minHeight: '100vh' }}>
-        <Navbar theme={theme} setTheme={setTheme}/>
+      <div className="container" style={{ minHeight: '100vh' }}>
+        <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/user" element={<UserProfile />} />
+          <Route path="/paymoney" element={<PayMoney />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
         </Routes>
       </div>
     </Router>
@@ -31,4 +27,3 @@ function App() {
 }
 
 export default App;
-

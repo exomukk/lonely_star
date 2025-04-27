@@ -1,13 +1,24 @@
 .homepage-container {
     text-align: center;
+    background-color: #dce1ff;
+    /* màu nền nhạt */
+    min-height: 100vh;
+    padding: 20px;
 }
 
-.input-container {
-    margin-bottom: 10px;
+.multiplier-buttons button {
+    margin: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
 }
 
-.input-container label {
-    margin-right: 15px;
+.slider-container {
+    margin: 15px 0;
+}
+
+.slider-container input[type="range"] {
+    width: 300px;
+    margin-left: 10px;
 }
 
 .wheel-container {
@@ -16,20 +27,49 @@
     margin: 20px;
 }
 
+/* 
+     Vòng quay:
+     - Dùng conic-gradient để tô khoảng trúng (đỏ mờ) 
+     - Mặc định 0° là ở vị trí 12 giờ, quay theo chiều kim đồng hồ
+  */
 .wheel {
     width: 200px;
     height: 200px;
     border-radius: 50%;
     border: 3px solid #333;
+    background: conic-gradient(#fff 0deg var(--start),
+            rgba(255, 0, 0, 0.3) var(--start) var(--end),
+            #fff var(--end) 360deg);
+    /* 
+       --start và --end là custom properties được set từ JSX
+       Từ x đến y sẽ hiển thị màu đỏ mờ
+    */
+    position: relative;
 }
 
+/* Kim đỏ */
 .pointer {
     position: absolute;
     width: 2px;
     height: 80px;
     background-color: red;
-    top: 50%;
+    top: 10%;
     left: 50%;
-    transform-origin: top center;
+    /* Gốc quay là đáy kim */
+    transform-origin: bottom center;
     transition: transform 3s ease-out;
+  
+    /*
+      Dịch chuyển bounding-box sao cho
+      “đáy kim” (pivot) khớp đúng tâm vòng tròn:
+      -50% theo chiều ngang (để canh giữa),
+      -80px theo chiều dọc (vì kim cao 80px)
+    */
+    transform: translate(-50%, -80px);
+  }
+
+/* Nút Quay */
+button {
+    padding: 8px 16px;
+    cursor: pointer;
 }

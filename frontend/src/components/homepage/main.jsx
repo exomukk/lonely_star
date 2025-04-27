@@ -1,31 +1,62 @@
 import React, { useState } from 'react';
 import './main.css';
 
+// Map hệ số -> độ rộng "khoảng trúng" (y - x)
+const multiplierMap = {
+    1.5: 270,
+    2: 180,
+    5: 75,
+    10: 30,
+    20: 15,
+    100: 3
+};
+
 function HomePage() {
-    const [x, setX] = useState('0');           // Giá trị góc bắt đầu (string)
-    const [y, setY] = useState('0');           // Giá trị góc kết thúc (string)
+    // X là góc bắt đầu, Y là góc kết thúc
+    const [x, setX] = useState(0);
+    const [y, setY] = useState(270);  // mặc định x1.5 => 270°
+    // Lưu “độ rộng” của khoảng trúng (mặc định 270° tương ứng x1.5)
+    const [difference, setDifference] = useState(270);
+
     const [angle, setAngle] = useState(0);     // Góc hiện tại của kim
     const [randomAngle, setRandomAngle] = useState(null);
-    const [isSpinning, setIsSpinning] = useState(false); // đánh dấu đang quay
+    const [isSpinning, setIsSpinning] = useState(false);
+
+    // Chọn hệ số: gán difference và tính lại y
+    const handleSelectMultiplier = (multiplier) => {
+        const diff = multiplierMap[multiplier];
+        setDifference(diff);
+
+        // Nếu x + diff <= 360 thì y = x + diff
+        // Ngược lại, clamp y = 360 (để đơn giản, không wrap-around)
+        if (x + diff <= 360) {
+            setY(x + diff);
+        } else {
+            setY(360);
+        }
+    };
+
+    // Thanh kéo thay đổi góc bắt đầu x
+    const handleSliderChange = (e) => {
+        const newX = parseInt(e.target.value, 10);
+        setX(newX);
+
+        // Tính y = x + difference, nếu > 360 thì clamp = 360
+        if (newX + difference <= 360) {
+            setY(newX + difference);
+        } else {
+            setY(360);
+        }
+    };
 
     const handleSpin = () => {
-        if (isSpinning) return;  // Nếu đang quay thì không cho quay tiếp
-
-        // Ép x, y sang số
-        const xNum = parseInt(x, 10);
-        const yNum = parseInt(y, 10);
-
-        if (xNum > yNum) {
-            alert('Vui lòng nhập X < Y để xác định khoảng độ chính xác!');
-            return;
-        }
+        if (isSpinning) return;
 
         // Tạo góc ngẫu nhiên 1-360
         const newRandomAngle = Math.floor(Math.random() * 360) + 1;
         setRandomAngle(newRandomAngle);
 
-        // Tính góc quay cuối cùng = góc hiện tại + 3 vòng (1080°) + randomAngle
-        // Bạn có thể dùng angle % 360 để tránh giá trị quá lớn
+        // Tính góc quay cuối = góc hiện tại + 3 vòng (1080°) + randomAngle
         const finalAngle = (angle % 360) + 1080 + newRandomAngle;
 
         // Bắt đầu quay
@@ -33,22 +64,19 @@ function HomePage() {
         setIsSpinning(true);
     };
 
-    // Hàm xử lý khi quay xong (transition kết thúc)
+    // Xử lý khi quay xong (transition end)
     const handleTransitionEnd = () => {
-        if (!isSpinning) return;  // Chỉ xử lý nếu vừa quay
-
+        if (!isSpinning) return;
         setIsSpinning(false);
 
-        // Ép x, y sang số để kiểm tra
-        const xNum = parseInt(x, 10);
-        const yNum = parseInt(y, 10);
-
-        // Kiểm tra kết quả
         if (randomAngle !== null) {
-            if (randomAngle >= xNum && randomAngle <= yNum) {
+            // randomAngle nằm trong khoảng [x, y] => thắng
+            if (randomAngle >= x && randomAngle <= y) {
                 alert(`Góc ra là ${randomAngle}° - Bạn đã THẮNG!`);
+                window.location.reload();
             } else {
                 alert(`Góc ra là ${randomAngle}° - Bạn đã THUA!`);
+                window.location.reload();
             }
         }
     };
@@ -57,32 +85,39 @@ function HomePage() {
         <div className="homepage-container">
             <h2>Game Vòng Quay May Mắn</h2>
 
-            {/* Khu vực nhập khoảng x-y */}
-            <div className="input-container">
-                <label>
-                    X (độ bắt đầu):
-                    <input
-                        type="number"
-                        value={x}
-                        onChange={(e) => setX(e.target.value)}
-                    />
-                </label>
-                <label>
-                    Y (độ kết thúc):
-                    <input
-                        type="number"
-                        value={y}
-                        onChange={(e) => setY(e.target.value)}
-                    />
-                </label>
+            {/* Chọn hệ số (x1.5, x2, x5, x10, x20, x100) */}
+            <div className="multiplier-buttons">
+                <button onClick={() => handleSelectMultiplier(1.5)}>x1.5</button>
+                <button onClick={() => handleSelectMultiplier(2)}>x2</button>
+                <button onClick={() => handleSelectMultiplier(5)}>x5</button>
+                <button onClick={() => handleSelectMultiplier(10)}>x10</button>
+                <button onClick={() => handleSelectMultiplier(20)}>x20</button>
+                <button onClick={() => handleSelectMultiplier(100)}>x100</button>
             </div>
 
-            {/* Vùng hiển thị vòng tròn + kim */}
-            <div className="wheel-container">
-                {/* Vòng tròn tĩnh, không quay */}
-                <div className="wheel" />
+            {/* Thanh kéo chọn góc bắt đầu x (0 -> 360 - difference) */}
+            <div className="slider-container">
+                <label>Chọn khoảng bắt đầu:</label>
+                <input
+                    type="range"
+                    min="0"
+                    max={360 - difference}
+                    value={x}
+                    onChange={handleSliderChange}
+                />
+                {/* Xóa dòng "Khoảng trúng" như yêu cầu */}
+            </div>
 
-                {/* Kim - quay 3 vòng + randomAngle, chờ kết thúc mới alert */}
+            {/* Vùng hiển thị vòng quay */}
+            <div className="wheel-container">
+                {/* Vòng tròn: dùng conic-gradient để đánh dấu khoảng [x, y] */}
+                <div
+                    className="wheel"
+                    style={{
+                        '--start': `${x}deg`,
+                        '--end': `${y}deg`
+                    }}
+                />
                 <div
                     className="pointer"
                     style={{ transform: `translateX(-50%) rotate(${angle}deg)` }}
