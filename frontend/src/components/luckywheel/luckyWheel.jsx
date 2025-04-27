@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './main.css';
+import './luckyWheel.css';
 
 // Map hệ số -> độ rộng "khoảng trúng" (y - x)
 const multiplierMap = {
