@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .gun_service import GunService
+from backend.gun.gun_service import GunService
 
 gun_bp = Blueprint('gun', __name__, url_prefix='/gun')
 
