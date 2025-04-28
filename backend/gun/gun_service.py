@@ -40,3 +40,17 @@ class GunService:
                 except:
                     continue
         return result
+
+    def get_skin_by_rarity(self, rarity):
+        """
+        Lấy 1 skin random theo độ hiếm (rarity)
+        """
+        # Lọc tất cả skin thuộc tierlist tương ứng
+        filtered_guns = [gun for gun in self.guns if gun.tierlist.lower() == rarity.lower()]
+
+        if not filtered_guns:
+            return None  # Nếu không có skin nào phù hợp
+
+        import random
+        selected_gun = random.choice(filtered_guns)
+        return selected_gun.to_dict()

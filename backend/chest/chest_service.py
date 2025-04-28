@@ -1,4 +1,4 @@
-from database.mongoInterface import chest_collection
+from database.nosql.mongoInterface import chest_collection
 import random
 
 def get_all_chests():

@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify
+
+from backend.gun.gun_routes import gun_service
 from chest.chest_service import get_all_chests, get_chest_by_id, random_rarity
-from gun.gun_service import get_skin_by_rarity  # lấy skin theo độ hiếm
-from inventory.inventory_service import add_item_to_inventory  # thêm vào kho đồ
+from backend.gun.gun_service import GunService  # lấy skin theo độ hiếm
+from backend.inventory.inventory_service import add_item_to_inventory  # thêm vào kho đồ
 from flask import session  # hoặc dùng JWT nếu bạn đang xài
 
 chest_bp = Blueprint('chest_bp', __name__)
@@ -38,7 +40,7 @@ def api_open_chest():
     selected_rarity = random_rarity(chest_info)
 
     # Random 1 skin theo độ hiếm (lấy từ weapons.json)
-    skin = get_skin_by_rarity(selected_rarity)
+    skin = gun_service.get_skin_by_rarity(selected_rarity)
 
     # Giả sử bạn đang lưu user_id trong session (hoặc JWT decode)
     user_id = session.get('user_id')  # hoặc decode từ token

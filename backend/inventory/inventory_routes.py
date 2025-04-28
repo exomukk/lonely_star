@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from inventory.inventory_service import get_inventory
+from inventory_service import get_inventory
 
 inventory_bp = Blueprint('inventory_bp', __name__)
 

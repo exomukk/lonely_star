@@ -1,4 +1,4 @@
-from database.mongoInterface import inventory_collection
+from database.nosql.mongoInterface import inventory_collection
 from datetime import datetime
 
 def add_item_to_inventory(user_id, skin_id, chest_id):
