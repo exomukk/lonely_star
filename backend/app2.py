@@ -1,15 +1,26 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt, unset_jwt_cookies
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies
 from flask_jwt_extended import set_access_cookies
-from flask_socketio import SocketIO
+# from flask_socketio import SocketIO
 
-# Thêm import
+# Thêm import Blueprint
 from gun.gun_routes import gun_bp
+from chest.chest_routes import chest_bp
+from inventory.inventory_routes import inventory_bp
+# (sau này thêm inventory/inventory_routes import inventory_bp nếu có)
 
 app = Flask(__name__)
 
+# Use CORS temporary for development
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
+
+# WebSocket configuration (tạm comment)
+# socket = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+
+# Future configuration for production
+# socketService = socketServiceInterface.SocketService()
+# socketController = socketControllerInterface.SocketController(socket, socketService)
 
 # Các phần websocket, userController, randomTool...
 import user.userController as userControllerInterface
@@ -18,6 +29,7 @@ userController = userControllerInterface.userController()
 import random_heuristic.randomInterface as randomInterface
 randomTool = randomInterface.randomInterface()
 
+# JWT configurations
 app.config['SECRET_KEY'] = randomTool.pseudo_random()
 app.config["JWT_SECRET_KEY"] = randomTool.pseudo_random()
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
@@ -26,10 +38,13 @@ app.config['JWT_COOKIE_SAMESITE'] = 'None'
 app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 jwt = JWTManager(app)
 
-# Thêm đăng ký blueprint gun
+# Route Blueprint configuration
 app.register_blueprint(gun_bp)
+app.register_blueprint(chest_bp)
+app.register_blueprint(inventory_bp)
+# app.register_blueprint(inventory_bp)  # <- sau này inventory xong thì thêm
 
-# Các route / /index /home /me /register /login /logout ...
+# Các route basic: / /index /home /me /register /login /logout
 @app.route('/')
 @app.route('/index')
 @app.route('/home')

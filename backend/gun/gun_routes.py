@@ -1,31 +1,33 @@
-from flask import Blueprint, jsonify
-import json
-import random
-import os
+from flask import Blueprint, jsonify, request
+from backend.gun.gun_service import GunService
 
 gun_bp = Blueprint('gun', __name__, url_prefix='/gun')
 
-# Load weapons.json
-current_dir = os.path.dirname(__file__)
-with open(os.path.join(current_dir, 'weapons.json'), 'r', encoding='utf-8') as f:
-    weapons = json.load(f)
+gun_service = GunService()
 
-# API: Lấy tất cả skin
+# API: lấy toàn bộ skin
 @gun_bp.route('/all', methods=['GET'])
 def get_all_weapons():
-    return jsonify(weapons)
+    return jsonify([gun.to_dict() for gun in gun_service.guns])
 
-# API: Random 1 skin
-@gun_bp.route('/random', methods=['GET'])
-def get_random_weapon():
-    weapon_name = random.choice(list(weapons.keys()))
-    return jsonify(weapons[weapon_name])
+# API: lấy skin theo khoảng giá
+@gun_bp.route('/price-range', methods=['GET'])
+def get_by_price_range():
+    try:
+        min_price = float(request.args.get('min'))
+        max_price = float(request.args.get('max'))
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Invalid min or max price'}), 400
 
-# API: Lấy skin theo tên (không bắt buộc, để sau dùng)
-@gun_bp.route('/<weapon_name>', methods=['GET'])
-def get_weapon_by_name(weapon_name):
-    weapon = weapons.get(weapon_name)
-    if weapon:
-        return jsonify(weapon)
-    else:
-        return jsonify({'error': 'Weapon not found'}), 404
+    guns = gun_service.get_by_price_range(min_price, max_price)
+    return jsonify([gun.to_dict() for gun in guns])
+
+# API: search theo tên hoặc giá
+@gun_bp.route('/search', methods=['GET'])
+def search_by_name_or_price():
+    query = request.args.get('query')
+    if not query:
+        return jsonify({'error': 'Missing search query'}), 400
+
+    guns = gun_service.search_by_name_or_price(query)
+    return jsonify([gun.to_dict() for gun in guns])
