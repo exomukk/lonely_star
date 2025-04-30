@@ -25,6 +25,13 @@ class DatabaseInterface:
                 sql_script = file.read()
                 self.cursor.execute(sql_script)
 
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='upgraderoom'")
+        blacklist_table_exists = self.cursor.fetchone() is not None
+        if not blacklist_table_exists:
+            with open('upgradeSkin/upgradeRecord.sql', 'r') as file:
+                sql_script = file.read()
+                self.cursor.execute(sql_script)
+
         self.cursor.close()
         self.connection.close()
 
@@ -58,6 +65,7 @@ class DatabaseInterface:
             except Exception as e:
                 print(f"Error inserting user: {e}")
                 return False
+        return None
 
     def login(self, username, password):
         connection = sqlite3.connect('database.db')
@@ -68,10 +76,32 @@ class DatabaseInterface:
         connection.close()
         return result is not None
 
+    def getLuckySeed(self, id):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT lucky_seed FROM user WHERE id = ?", (id,))
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        if result is not None:
+            return result[0]
+        else:
+            return None
+
     def addToBlacklist(self, jwt):
         connection = sqlite3.connect('database.db')
         cursor = connection.cursor()
         cursor.execute("INSERT INTO blacklist (jwt) VALUES (?)", (jwt,))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+
+
+    def addUpgradeRecord(self, userID,userWeaponID,expectedWeaponID,successRate,upgradeRate,upgradeDate,success):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO upgraderoom (userID,userWeaponID,expectedWeaponID,successRate,upgradeDate,success) VALUES ( ?,?,?,?,?,?)", (userID,userWeaponID,expectedWeaponID,successRate,upgradeRate,upgradeDate,success))
         connection.commit()
         cursor.close()
         connection.close()
