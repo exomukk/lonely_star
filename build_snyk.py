@@ -15,20 +15,13 @@ def print_logo():
     print(logo)
 
 
-def main():
-    print_logo()
-    print("Chào mừng bạn đến với công cụ tự động hóa Docker và Snyk!")
-    print("Bạn sẽ nhập Snyk API Token để thực hiện quét bảo mật và tạo Docker image.")
-
-    # Yêu cầu người dùng nhập Snyk API Token
+def run_snyk_scan():
     snyk_token = input("Nhập Snyk API Token của bạn: ")
 
     # Lưu token vào biến môi trường
     os.environ["SNYK_TOKEN"] = snyk_token
     print("Token đã được lưu vào biến môi trường.\n")
-
-    # Thông báo đang bắt đầu quá trình build Docker
-    print("Bắt đầu quá trình build Docker image...\n")
+    print("Đang quét mã nguồn bằng Snyk...\n")
 
     try:
         # Chạy Docker build với biến môi trường SNYK_TOKEN
@@ -49,32 +42,31 @@ def main():
                     cleaned_line = re.sub(r'^#\d+\s+\d+\.\d+\s+', '', line)
                     filtered_result.append(cleaned_line)
                 # if filtered_result:
-                    # print("Filtered output from stderr:")
-                    # print("\n".join(filtered_result))
+                # print("Filtered output from stderr:")
+                # print("\n".join(filtered_result))
             docker_output = "\n".join(filtered_result)
 
             cleaned_output = re.sub(r'^#\d+\s+\d+\.\d+\s+', '', docker_output)
 
             print('cleaned_output: ', cleaned_output)
 
-        # Tìm kiếm phần JSON trong output (bắt đầu từ '{' và kết thúc ở '}')
+            # Tìm kiếm phần JSON trong output (bắt đầu từ '{' và kết thúc ở '}')
             json_match = re.search(r'({.*})', cleaned_output, re.DOTALL)  # Dùng result.stdout thay vì result
-        # json_match_err = re.search(r'({.*})', cleaned_output, re.DOTALL)
+            # json_match_err = re.search(r'({.*})', cleaned_output, re.DOTALL)
 
-        # if json_match_err:
-        #     # json_data = json_match.group(0)  # Lấy phần JSON từ output
-        #
-        #     # Chuyển đổi chuỗi JSON thành đối tượng Python
-        #     result_json = json.loads(json_match_err.group(1))
-        #     with open('snyk_results.json', 'w') as json_file:
-        #         json.dump(result_json, json_file, indent=2)
-        #
-        #     with open("docker_build_result.txt", "w", encoding="utf-8") as file:
-        #         file.write("\n".join(result_json))
-        #
-        #     print('Result JSON: ', result_json)
+            # if json_match_err:
+            #     # json_data = json_match.group(0)  # Lấy phần JSON từ output
+            #
+            #     # Chuyển đổi chuỗi JSON thành đối tượng Python
+            #     result_json = json.loads(json_match_err.group(1))
+            #     with open('snyk_results.json', 'w') as json_file:
+            #         json.dump(result_json, json_file, indent=2)
+            #
+            #     with open("docker_build_result.txt", "w", encoding="utf-8") as file:
+            #         file.write("\n".join(result_json))
+            #
+            #     print('Result JSON: ', result_json)
 
-            print('json match: ', json_match.group(1))
             if json_match:
                 try:
                     # Load the matched JSON string into a dictionary
@@ -92,12 +84,10 @@ def main():
         print("Docker image đã được build thành công!")
         print("Docker image đã được gắn thẻ là 'snyk-flask-dashboard'.\n")
 
-
         #
         #     # Ghi kết quả lọc vào file txt
         #     with open("docker_build_result.txt", "w", encoding="utf-8") as file:
         #         file.write("\n".join(filtered_result))  # Ghi kết quả vào file
-
 
         # # Ghi kết quả JSON vào file json
         # if 'result_json' in locals():  # Kiểm tra nếu result_json đã được tạo
@@ -122,6 +112,80 @@ def main():
     print("\nNếu không có lỗi, bạn có thể tiếp tục với các bước sau:")
     print("1. Chạy Docker container: docker run -p 8080:8080 snyk-flask-dashboard")
     print("2. Truy cập vào dashboard web tại http://localhost:5000")
+    choice = input("Nhập lựa chọn của bạn:")
+
+    if choice == "1":
+        print_logo()
+
+    elif choice == "2":
+        subprocess.run(["python", "snyk.py"])
+
+
+def check_docker_image():
+    print("Kiểm tra bảo mật Docker Image...\n")
+    docker_image = input("Nhập tên Docker image bạn muốn kiểm tra (ví dụ: my_image:latest): ")
+
+    snyk_token = input("Nhập Snyk API Token của bạn: ")
+
+    # Lưu token vào biến môi trường
+    os.environ["SNYK_TOKEN"] = snyk_token
+    print("Token đã được lưu vào biến môi trường.\n")
+
+    try:
+        # Chạy lệnh Snyk để kiểm tra bảo mật trong Docker image
+        result = subprocess.run(
+            ["snyk", "container", "test", docker_image, "--json"],
+            text=True, capture_output=True, encoding='utf-8', errors='replace'
+        )
+
+        # Lọc và xử lý kết quả
+        if result.stderr:
+            filtered_result = []
+            for line in result.stderr.splitlines():
+                if "#12" in line:
+                    cleaned_line = re.sub(r'^#\d+\s+\d+\.\d+\s+', '', line)
+                    filtered_result.append(cleaned_line)
+
+            docker_output = "\n".join(filtered_result)
+
+            # Xử lý phần JSON từ output
+            json_match = re.search(r'({.*})', docker_output, re.DOTALL)
+            if json_match:
+                try:
+                    json_data = json.loads(json_match.group(1))
+
+                    # Lưu kết quả vào file
+                    with open('docker_scan_results.json', 'w') as json_file:
+                        json.dump(json_data, json_file, indent=2)
+
+                    print("Docker image scan results saved to 'docker_scan_results.json'")
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON: {e}")
+
+    except subprocess.CalledProcessError as e:
+        print("Lỗi khi kiểm tra Docker image:")
+        print(e.stderr)
+
+    except Exception as e:
+        print("Đã xảy ra lỗi ngoài dự đoán:")
+        print(str(e))
+
+
+def main():
+    print_logo()
+    print("Chào mừng bạn đến với công cụ tự động hóa Docker và Snyk!")
+    print("Chọn một trong hai lựa chọn sau:")
+    print("1. Đọc lỗi mã nguồn (Snyk)")
+    print("2. Kiểm tra bảo mật Docker image")
+
+    choice = input("Nhập lựa chọn (1 hoặc 2): ")
+
+    if choice == '1':
+        run_snyk_scan()
+    elif choice == '2':
+        check_docker_image()
+    else:
+        print("Lựa chọn không hợp lệ, vui lòng chọn lại.")
 
 
 if __name__ == "__main__":
