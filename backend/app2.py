@@ -4,20 +4,6 @@ from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset
 from flask_jwt_extended import set_access_cookies
 # from flask_socketio import SocketIO
 
-# Thêm import Blueprint
-from gun.gun_routes import gun_bp
-from chest.chest_routes import chest_bp
-from inventory.inventory_routes import inventory_bp
-# (sau này thêm inventory/inventory_routes import inventory_bp nếu có)
-
-app = Flask(__name__)
-
-# Use CORS temporary for development
-CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
-
-# WebSocket configuration (tạm comment)
-# socket = SocketIO(app, cors_allowed_origins="http://localhost:3000")
-
 # Future configuration for production
 # socketService = socketServiceInterface.SocketService()
 # socketController = socketControllerInterface.SocketController(socket, socketService)
@@ -29,6 +15,26 @@ userController = userControllerInterface.userController()
 import random_heuristic.randomInterface as randomInterface
 randomTool = randomInterface.randomInterface()
 
+# Thêm các service đã tách riêng
+from gun.gun_service import GunService
+from chest.chest_service import get_all_chests, get_chest_by_id, random_rarity
+from inventory.inventory_service import (
+    get_inventory,
+    add_item_to_inventory,
+    check_item_executing,
+    change_item_executing
+)
+
+gun_service = GunService()
+
+app = Flask(__name__)
+
+# Use CORS temporary for development
+CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
+
+# WebSocket configuration (tạm comment)
+# socket = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+
 # JWT configurations
 app.config['SECRET_KEY'] = randomTool.pseudo_random()
 app.config["JWT_SECRET_KEY"] = randomTool.pseudo_random()
@@ -37,12 +43,6 @@ app.config['JWT_COOKIE_SECURE'] = True
 app.config['JWT_COOKIE_SAMESITE'] = 'None'
 app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 jwt = JWTManager(app)
-
-# Route Blueprint configuration
-app.register_blueprint(gun_bp)
-app.register_blueprint(chest_bp)
-app.register_blueprint(inventory_bp)
-# app.register_blueprint(inventory_bp)  # <- sau này inventory xong thì thêm
 
 # Các route basic: / /index /home /me /register /login /logout
 @app.route('/')
@@ -79,6 +79,91 @@ def logout():
     response = jsonify({'status': 'success', 'message': 'Đăng xuất thành công'})
     unset_jwt_cookies(response)
     return response, 200
+
+#Gun Routes
+@app.route('/api/gun/search', methods=['GET'])
+def api_search_gun():
+    query = request.args.get('q', '')
+    result = [g.to_dict() for g in gun_service.search_by_name_or_price(query)]
+    return jsonify(result)
+
+@app.route('/api/gun/price_range', methods=['GET'])
+def api_gun_by_price():
+    min_price = float(request.args.get('min', 0))
+    max_price = float(request.args.get('max', 9999))
+    result = [g.to_dict() for g in gun_service.get_by_price_range(min_price, max_price)]
+    return jsonify(result)
+
+@app.route('/api/gun/<gun_id>', methods=['GET'])
+def api_get_gun_by_id(gun_id):
+    skin = gun_service.get_skin_by_id(gun_id)
+    if skin:
+        return jsonify(skin)
+    return jsonify({'error': 'not found'}), 404
+
+#Chest Routes
+@app.route('/api/chests', methods=['GET'])
+def api_get_chests():
+    chests = get_all_chests()
+    for chest in chests:
+        chest['_id'] = str(chest['_id'])
+    return jsonify(chests), 200
+
+@app.route('/api/open_chest', methods=['POST'])
+@jwt_required()
+def api_open_chest():
+    data = request.get_json()
+    chest_id = data.get('chest_id')
+    if not chest_id:
+        return jsonify({'error': 'chest_id is required'}), 400
+
+    chest_info = get_chest_by_id(chest_id)
+    if not chest_info:
+        return jsonify({'error': 'Chest not found'}), 404
+
+    selected_rarity = random_rarity(chest_info)
+    skin = gun_service.get_skin_by_rarity(selected_rarity)
+
+    user_id = get_jwt_identity()
+    add_item_to_inventory(user_id, skin['id'], chest_id)
+
+    return jsonify({
+        'message': 'Chest opened successfully',
+        'skin': skin,
+        'rarity': selected_rarity
+    }), 200
+
+#Inventory Routes
+@app.route('/api/inventory', methods=['GET'])
+@jwt_required()
+def api_get_inventory():
+    user_id = get_jwt_identity()
+    items = get_inventory(user_id)
+    return jsonify({
+        "status": "success",
+        "inventory": items
+    }), 200
+
+@app.route('/api/item_state/<skin_id>', methods=['GET'])
+@jwt_required()
+def api_check_item_state(skin_id):
+    user_id = get_jwt_identity()
+    state = check_item_executing(user_id, skin_id)
+    return jsonify({
+        "skin_id": skin_id,
+        "isExecuting": state
+    })
+
+@app.route('/api/item_state/<skin_id>', methods=['POST'])
+@jwt_required()
+def api_change_item_state(skin_id):
+    user_id = get_jwt_identity()
+    new_state = request.json.get("isExecuting", False)
+    change_item_executing(user_id, skin_id, new_state)
+    return jsonify({
+        "skin_id": skin_id,
+        "newState": new_state
+    }), 200
 
 if __name__ == '__main__':
     app.run()
