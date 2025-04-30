@@ -1,22 +1,6 @@
 import json
 import os
-
-class Gun:
-    def __init__(self, id, name, image, price, tierlist):
-        self.id = id
-        self.name = name
-        self.image = image
-        self.price = price
-        self.tierlist = tierlist
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "image": self.image,
-            "price": self.price,
-            "tierlist": self.tierlist
-        }
+from backend.gun.Gun import Gun
 
 class GunService:
     def __init__(self):
@@ -42,15 +26,17 @@ class GunService:
         return result
 
     def get_skin_by_rarity(self, rarity):
-        """
-        Lấy 1 skin random theo độ hiếm (rarity)
-        """
-        # Lọc tất cả skin thuộc tierlist tương ứng
         filtered_guns = [gun for gun in self.guns if gun.tierlist.lower() == rarity.lower()]
 
         if not filtered_guns:
-            return None  # Nếu không có skin nào phù hợp
+            return None
 
         import random
         selected_gun = random.choice(filtered_guns)
         return selected_gun.to_dict()
+
+    def get_skin_by_id(self, skin_id):
+        for gun in self.guns:
+            if gun.id == skin_id:
+                return gun.to_dict()
+        return None
