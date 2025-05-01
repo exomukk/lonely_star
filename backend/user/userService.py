@@ -1,5 +1,4 @@
-from injector import inject, singleton, Injector
-from database.dbInterface import DatabaseInterface
+from database.sql.dbInterface import DatabaseInterface
 from random_heuristic import randomInterface
 from user.user import User
 class userService():
