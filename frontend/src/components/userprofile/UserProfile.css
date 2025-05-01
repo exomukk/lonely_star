@@ -1,80 +1,125 @@
 /* src/components/user/UserProfile.css */
 
 .profile-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem;
-    background: linear-gradient(120deg, #6a11cb, #2575fc);
-    min-height: 100vh;
-  }
-  
-  .profile-card {
-    width: 400px;
-    padding: 2rem;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  }
-  
-  .profile-card h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 1.5rem;
-  }
-  
-  .profile-form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .profile-form div {
-    margin-bottom: 1rem;
-  }
-  
-  .profile-form label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: #555;
-  }
-  
-  .profile-form input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-  }
-  
-  .profile-form button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    background-color: #2575fc;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-top: 1rem;
-  }
-  
-  .profile-form button:hover {
-    background-color: #1a5cb8;
-  }
-  
-  /* Style for the "Nạp tiền" button (if placed outside the form) */
-  .profile-fund-button {
-    margin-top: 1rem;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 6px;
-    background-color: #28a745;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .profile-fund-button:hover {
-    background-color: #218838;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  background: linear-gradient(120deg, #6a11cb, #2575fc);
+  min-height: 100vh;
+}
+
+.profile-card {
+  width: 400px;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.profile-card h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-form div {
+  margin-bottom: 1rem;
+}
+
+.profile-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #555;
+}
+
+.profile-form input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.profile-form button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #2575fc;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 1rem;
+}
+
+.profile-form button:hover {
+  background-color: #1a5cb8;
+}
+
+/* Style for the "Nạp tiền" button (if placed outside the form) */
+.profile-fund-button {
+  margin-top: 1rem;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.profile-fund-button:hover {
+  background-color: #218838;
+}
+
+/* ===== Inventory Section ===== */
+.inventory-title {
+  margin-top: 2rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+}
+
+.inventory-grid {
+  display: grid;
+  /* 5 cột, mỗi cột rộng ít nhất 130px và co giãn đều */
+  grid-template-columns: repeat(5, 230px);
+  gap: 2rem;                 /* khoảng cách giữa các card */
+  justify-content: center;   /* center cả grid */
+  margin: 2rem auto 3rem;
+}
+
+.inventory-item {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  width: 100%;
+  /* to hơn */
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+}
+
+.inventory-item img {
+  flex: 0 0 100px;
+  /* ảnh to hơn */
+  width: 100px;
+  height: auto;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.inventory-item p {
+  margin: 0 0 0 1rem;
+  font-size: 1rem;
+  /* chữ to hơn */
+  color: #333;
+  line-height: 1.2;
+}

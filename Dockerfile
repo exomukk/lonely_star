@@ -1,15 +1,31 @@
 # Sử dụng Node.js image làm base
 FROM node:14-alpine
 
+# Cài đặt Python và pip
+RUN apk add --no-cache python3 py3-pip
+
 # Cài đặt Snyk CLI
-RUN npm install -g snyk
+RUN npm install -g snyk && snyk --version
+
+# Chỉ dùng để debug, có thể bỏ qua
+RUN echo $SNYK_TOKEN  
+
+# Cài đặt Flask và các thư viện cần thiết cho Python
+RUN pip install Flask
+
+# Định nghĩa ARG để nhận giá trị SNYK_TOKEN từ khi build
+ARG SNYK_TOKEN
 
 # Copy token (hoặc set token qua biến môi trường khi build)
-ENV SNYK_TOKEN=e03deb41-76e1-4872-9e62-156c461f9359
+ENV SNYK_TOKEN=${SNYK_TOKEN}
 
 # Tạo thư mục làm việc trong container
 WORKDIR /app
-COPY /frontend /app
+COPY . /app
 
-# Lệnh mặc định để chạy khi container bắt đầu: quét bảo mật Snyk
-CMD ["snyk", "test"]
+# Quét bảo mật mã nguồn và thư viện phụ thuộc
+# RUN snyk test --all-projects --json || echo "Snyk test failed"
+RUN snyk test --all-projects --json | tee ./snyk-results.json
+
+# Cấu hình web server Flask
+CMD ["python", "snyk.py"]

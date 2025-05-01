@@ -1,0 +1,51 @@
+.homepage-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.banner {
+    margin-bottom: 40px;
+}
+
+.banner-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.cases-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    justify-items: center;
+}
+
+.case-item {
+    background-color: #1c1c1c;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    width: 220px;
+}
+
+.case-image {
+    width: 100%;
+    height: auto;
+    margin-bottom: 15px;
+}
+
+.open-case-button {
+    background-color: #ff9800;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.open-case-button:hover {
+    background-color: #e68900;
+}

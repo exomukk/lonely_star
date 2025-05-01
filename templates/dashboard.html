@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vulnerabilities Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .vulnerability-card {
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .vulnerability-card h3 {
+            margin-top: 0;
+        }
+        .vulnerability-card p {
+            margin: 5px 0;
+        }
+        .severity {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snyk Vulnerabilities Dashboard</h1>
+
+    <div>
+        {% for vulnerability in vulnerabilities %}
+        <div class="vulnerability-card">
+            <h3>{{ vulnerability.title }}</h3>
+            <p><strong>ID:</strong> {{ vulnerability.id }}</p>
+            <p><strong>CVSSv3:</strong> {{ vulnerability.CVSSv3 }}</p>
+            <p><strong>Severity:</strong> <span class="severity">{{ vulnerability.severity }}</span></p>
+            <p><strong>Description:</strong> {{ vulnerability.description }}</p>
+            <p><strong>Package:</strong> {{ vulnerability.packageName }} ({{ vulnerability.version }})</p>
+            <p><strong>Fix Available:</strong> {{ vulnerability.fixedIn | join(', ') }}</p>
+            <hr>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

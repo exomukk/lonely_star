@@ -79,7 +79,7 @@ const Navbar = () => {
       <ul className="nav-list">
         <li><a href="/">Home</a></li>
         <li><a href="/leaderboard">Leaderboard</a></li>
-        <li><a href="#mini-games">Mini-games</a></li>
+        <li><a href="/luckywheel">Upgrade</a></li>
 
         {user ? (
           <li className="nav-user" onClick={handleUserClick}>
