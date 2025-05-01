@@ -1,11 +1,11 @@
 import json
-import os
-from backend.gun.Gun import Gun
+import random
+from importlib import resources
+from backend.gun.gun import Gun
 
 class GunService:
     def __init__(self):
-        current_dir = os.path.dirname(__file__)
-        with open(os.path.join(current_dir, 'weapons.json'), 'r', encoding='utf-8') as f:
+        with resources.files("backend.gun").joinpath("weapons.json").open("r", encoding="utf-8") as f:
             self.guns_data = json.load(f)
         self.guns = [Gun(**gun) for gun in self.guns_data]
 
@@ -14,12 +14,13 @@ class GunService:
 
     def search_by_name_or_price(self, query):
         result = []
+        query_lower = query.lower()
         for gun in self.guns:
-            if gun.name.lower() == query.lower():
+            if query_lower in gun.name.lower():
                 result.append(gun)
             else:
                 try:
-                    if abs(gun.price - float(query)) < 0.01:  # Chênh lệch nhỏ để tránh lỗi float
+                    if abs(gun.price - float(query)) < 0.01:
                         result.append(gun)
                 except:
                     continue
@@ -27,11 +28,8 @@ class GunService:
 
     def get_skin_by_rarity(self, rarity):
         filtered_guns = [gun for gun in self.guns if gun.tierlist.lower() == rarity.lower()]
-
         if not filtered_guns:
             return None
-
-        import random
         selected_gun = random.choice(filtered_guns)
         return selected_gun.to_dict()
 

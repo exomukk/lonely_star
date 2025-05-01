@@ -17,10 +17,3 @@ class userService():
             return True
         else:
             return False
-
-    def getLuckySeedByID(self, id):
-        lucky_seed = self.database.getLuckySeed(id)
-        if lucky_seed is not None:
-            return lucky_seed
-        else:
-            return None
