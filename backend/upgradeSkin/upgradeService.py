@@ -6,6 +6,8 @@ from gun.gun_service import GunService
 from user.userService import userService
 from inventory.inventory_service import InventoryService
 from database.sql.dbInterface import DatabaseInterface
+from inventory.inventory_service import add_item_to_inventory, remove_item_from_inventory
+
 class upgradeRoomService:
     def __init__(self):
         pass
@@ -37,19 +39,20 @@ class upgradeRoomService:
             return { "success": False, "reason": "Haha, try to upgrade the skin 2 times ? Not applicable here 😉" }
         return { "success": False, "reason": "You don't have the skin, don't try to fake with custom responses" }
 
-    def upgradeSuccess(self,userID,userWeaponID,expectedWeaponID):
+    def upgradeSuccess(self, userID, userWeaponID, expectedWeaponID):
         try:
-            InventoryService.removeItem(userID, userWeaponID)
-            InventoryService.addItem(userID, expectedWeaponID)
-            self.newUpgradeRecord(userID,userWeaponID,expectedWeaponID,True)
-        except:
-            print("Failed to save new skin ID to user, reverting")
-    def upgradeFailed(self,userID,userWeaponID,expectedWeaponID):
+            remove_item_from_inventory(userID, userWeaponID)
+            add_item_to_inventory(userID, expectedWeaponID, chest_id=None, source="upgrade")
+            self.newUpgradeRecord(userID, userWeaponID, expectedWeaponID, True)
+        except Exception as e:
+            print("Upgrade success handling failed:", e)
+
+    def upgradeFailed(self, userID, userWeaponID, expectedWeaponID):
         try:
-            InventoryService.removeItem(userID,userWeaponID)
-            self.newUpgradeRecord(userID,userWeaponID,expectedWeaponID,False)
-        except:
-            print("Failed to remove old skin ID to user, reverting")
+            remove_item_from_inventory(userID, userWeaponID)
+            self.newUpgradeRecord(userID, userWeaponID, expectedWeaponID, False)
+        except Exception as e:
+            print("Upgrade fail handling failed:", e)
 
     def newUpgradeRecord(self,userID,userWeaponID,expectedWeaponID,success):
         successRate=self.rollRate(userID,userWeaponID,expectedWeaponID)

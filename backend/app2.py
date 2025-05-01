@@ -17,6 +17,7 @@ randomTool = randomInterface.randomInterface()
 
 # Thêm các service đã tách riêng
 from gun.gun_service import GunService
+from inventory.inventory_service import sell_item_from_inventory
 from chest.chest_service import get_all_chests, get_chest_by_id, random_rarity
 from inventory.inventory_service import (
     get_inventory,
@@ -164,6 +165,30 @@ def api_change_item_state(skin_id):
         "skin_id": skin_id,
         "newState": new_state
     }), 200
+
+@app.route('/api/sell_skin', methods=['POST'])
+@jwt_required()
+def api_sell_skin():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    skin_id = data.get("skin_id")
+
+    if not skin_id:
+        return jsonify({"success": False, "message": "skin_id is required"}), 400
+
+    result = sell_item_from_inventory(user_id, skin_id)
+
+    if result["success"]:
+        return jsonify({
+            "success": True,
+            "message": f"Sold skin {skin_id} for {result['value']}$",
+            "earned": result["value"]
+        }), 200
+    else:
+        return jsonify({
+            "success": False,
+            "message": result["reason"]
+        }), 400
 
 if __name__ == '__main__':
     app.run()
