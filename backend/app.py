@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies
 from flask_jwt_extended import set_access_cookies
+from upgradeSkin.upgradeService import upgradeRoomService
 # from flask_socketio import SocketIO
 
 # Future configuration for production
@@ -190,5 +191,46 @@ def api_sell_skin():
             "message": result["reason"]
         }), 400
 
+@app.route('/api/rollRate', methods=['GET'])
+@jwt_required()
+def rollRate():
+    user_id = get_jwt_identity()
+    userWeaponID = request.args.get('userWeaponID')
+    expectedWeaponID = request.args.get('expectedWeaponID')
+
+    if not userWeaponID or not expectedWeaponID:
+        return jsonify({"error": "userWeaponID and expectedWeaponID are required"}), 400
+
+    rate = upgradeRoomService.rollRate(user_id, userWeaponID, expectedWeaponID)
+    return jsonify({"rate": rate}), 200
+
+@app.route('/api/upgradeSkin', methods=['POST'])
+@jwt_required()
+def upgradeSkin():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    userWeaponID = data.get('userWeaponID')
+    expectedWeaponID = data.get('expectedWeaponID')
+    startRange = data.get('startRange')
+    endRange = data.get('endRange')
+
+    if not userWeaponID or not expectedWeaponID:
+        return jsonify({"error": "userWeaponID and expectedWeaponID are required"}), 400
+
+    result = upgradeRoomService.executeRoll(user_id, userWeaponID, expectedWeaponID, startRange, endRange)
+    if result:
+        return jsonify({"success": True}), 200
+    else:
+        return jsonify({"success": False}), 500
+
+@app.route('/api/currentCash', methods=['GET'])
+@jwt_required()
+def getCurrentCash():
+    user_id = get_jwt_identity()
+    cash = userController.userService.getCash(user_id)
+    if cash is not None:
+        return jsonify({"cash": cash}), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
 if __name__ == '__main__':
     app.run()

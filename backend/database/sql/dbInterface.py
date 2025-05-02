@@ -35,7 +35,75 @@ class DatabaseInterface:
         self.cursor.close()
         self.connection.close()
 
-    def insertingUser(self, userInfo: user):
+    def addToBlacklist(self,jwt):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO blacklist (jwt) VALUES (?)", (jwt,))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+    def getUpgradeRecord(self,userID):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM upgraderoom WHERE userID = ?", (userID,))
+        result = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return result
+
+    def addUpgradeRecord(self,userID, userWeaponID, expectedWeaponID, successRate, upgradeRate, upgradeDate, success):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute(
+            "INSERT INTO upgraderoom (userID,userWeaponID,expectedWeaponID,successRate,upgradeDate,success) VALUES ( ?,?,?,?,?,?)",
+            (userID, userWeaponID, expectedWeaponID, successRate, upgradeRate, upgradeDate, success))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+    def getLuckySeed(self,id):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT lucky_seed FROM user WHERE id = ?", (id,))
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        if result is not None:
+            return result[0]
+        else:
+            return None
+
+    def addCash(self,userID, amount):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("UPDATE user SET cash = cash + ? WHERE id = ?", (amount, userID))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+    def getCash(self,userID):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT cash FROM user WHERE id = ?", (userID,))
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        if result is not None:
+            return result[0]
+        else:
+            return None
+
+    def login(self,username, password):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM user WHERE username = ? AND password = ?", (username, password))
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        return result is not None
+
+    def insertingUser(self,userInfo: user):
         retry_count = 0
         max_retries = 10
 
@@ -47,7 +115,7 @@ class DatabaseInterface:
                 username = userInfo.username
                 password = userInfo.password
                 lucky_seed = userInfo.lucky_seed
-                cursor.execute("INSERT INTO user (name, username, password, lucky_seed) VALUES (?,?,?,?)",
+                cursor.execute("INSERT INTO user (name, username, password, lucky_seed,cash) VALUES (?,?,?,?,0.00)",
                                (name, username, password, lucky_seed))
                 connection.commit()
                 cursor.close()
@@ -66,51 +134,3 @@ class DatabaseInterface:
                 print(f"Error inserting user: {e}")
                 return False
         return None
-
-    def login(self, username, password):
-        connection = sqlite3.connect('database.db')
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM user WHERE username = ? AND password = ?", (username, password))
-        result = cursor.fetchone()
-        cursor.close()
-        connection.close()
-        return result is not None
-
-    def getLuckySeed(self, id):
-        connection = sqlite3.connect('database.db')
-        cursor = connection.cursor()
-        cursor.execute("SELECT lucky_seed FROM user WHERE id = ?", (id,))
-        result = cursor.fetchone()
-        cursor.close()
-        connection.close()
-        if result is not None:
-            return result[0]
-        else:
-            return None
-
-    def addToBlacklist(self, jwt):
-        connection = sqlite3.connect('database.db')
-        cursor = connection.cursor()
-        cursor.execute("INSERT INTO blacklist (jwt) VALUES (?)", (jwt,))
-        connection.commit()
-        cursor.close()
-        connection.close()
-
-
-
-    def addUpgradeRecord(self, userID,userWeaponID,expectedWeaponID,successRate,upgradeRate,upgradeDate,success):
-        connection = sqlite3.connect('database.db')
-        cursor = connection.cursor()
-        cursor.execute("INSERT INTO upgraderoom (userID,userWeaponID,expectedWeaponID,successRate,upgradeDate,success) VALUES ( ?,?,?,?,?,?)", (userID,userWeaponID,expectedWeaponID,successRate,upgradeRate,upgradeDate,success))
-        connection.commit()
-        cursor.close()
-        connection.close()
-
-    def getUpgradeRecord(self,userID):
-        connection = sqlite3.connect('database.db')
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM upgraderoom WHERE userID = ?", (userID,))
-        result = cursor.fetchall()
-        cursor.close()
-        connection.close()
-        return result
