@@ -17,3 +17,6 @@ class userService():
             return True
         else:
             return False
+
+    def getLuckySeedByID(self, id):
+        return self.database.getLuckySeed(id)

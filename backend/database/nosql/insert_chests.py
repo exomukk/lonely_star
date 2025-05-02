@@ -51,10 +51,10 @@ chests = [
         "name": "Mythic Chest",
         "price": 100,
         "rarity_distribution": {
-            "rare": 10,
-            "epic": 20,
-            "legendary": 30,
-            "mythic": 40
+            "rare": 40,
+            "epic": 30,
+            "legendary": 20,
+            "mythic": 10
         }
     }
 ]
