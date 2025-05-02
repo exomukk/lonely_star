@@ -4,3 +4,4 @@ class User:
         self.username = username
         self.password = password
         self.lucky_seed = lucky_seed
+        self.cash = 0.00

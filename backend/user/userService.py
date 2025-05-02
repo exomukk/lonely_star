@@ -1,4 +1,4 @@
-from database.sql.dbInterface import DatabaseInterface
+from database.sql.dbInterface import DatabaseInterface,login,insertingUser,getLuckySeed,addCash,getCash
 from random_heuristic import randomInterface
 from user.user import User
 class userService():
@@ -7,13 +7,25 @@ class userService():
         self.randomTool = randomInterface
         pass
     def login(self, username, password):
-        if self.database.login(username, password):
+        if login(username, password):
             return True
         else:
             return False
     def register(self, name, username, password, lucky_seed):
-        user_temp = User(name, username, password, lucky_seed)
-        if self.database.insertingUser(user_temp):
+        user_temp = User(name, username, password, lucky_seed,0)
+        if insertingUser(user_temp):
             return True
         else:
             return False
+
+    def getLuckySeedByID(self, id):
+        return getLuckySeed(id)
+
+    def addCash(self,userID, amount):
+        try:
+            addCash(userID, amount)
+            return True
+        except:
+            return False
+    def getCash(self, userID):
+        return getCash(userID)
