@@ -1,13 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies, get_jwt
 from flask_jwt_extended import set_access_cookies
 from upgradeSkin.upgradeService import upgradeRoomService
-# from flask_socketio import SocketIO
-
-# Future configuration for production
-# socketService = socketServiceInterface.SocketService()
-# socketController = socketControllerInterface.SocketController(socket, socketService)
+from datetime import timedelta
+from database.sql.dbInterface import DatabaseInterface
 
 # Các phần websocket, userController, randomTool...
 import user.userController as userControllerInterface
@@ -34,10 +31,8 @@ app = Flask(__name__)
 # Use CORS temporary for development
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
-# WebSocket configuration (tạm comment)
-# socket = SocketIO(app, cors_allowed_origins="http://localhost:3000")
-
 # JWT configurations
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
 app.config['SECRET_KEY'] = randomTool.pseudo_random()
 app.config["JWT_SECRET_KEY"] = randomTool.pseudo_random()
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
@@ -53,6 +48,11 @@ jwt = JWTManager(app)
 def entrypoint():
     return "../main.html"
 
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blocklist(jwt_header, jwt_payload):
+    jti = jwt_payload['jti']
+    token_in_blocklist = DatabaseInterface.checkIfBlacklisted(jti)
+    return token_in_blocklist
 @app.route("/me", methods=["GET"])
 @jwt_required()
 def me():
@@ -78,6 +78,7 @@ def login():
 
 @app.route('/logout', methods=['POST'])
 def logout():
+    DatabaseInterface.addToBlacklist(get_jwt()['jti'])
     response = jsonify({'status': 'success', 'message': 'Đăng xuất thành công'})
     unset_jwt_cookies(response)
     return response, 200

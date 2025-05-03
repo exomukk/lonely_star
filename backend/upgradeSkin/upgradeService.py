@@ -78,5 +78,3 @@ class upgradeRoomService:
             return {"success": False, "reason": "Haha, try to upgrade the skin 2 times ? Not applicable here 😉"}
         return {"success": False, "reason": "You don't have the skin, don't try to spam with custom responses 😊"}
 
-#nhac beo them rollback cho addItem va removeItem
-#nhac beo them FOR UPDATE cho addStateToItem

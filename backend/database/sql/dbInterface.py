@@ -43,6 +43,15 @@ class DatabaseInterface:
         cursor.close()
         connection.close()
 
+    def checkIfBlacklisted(self,jwt):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM blacklist WHERE jwt = ?", (jwt,))
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        return result is not None
+
     def getUpgradeRecord(self,userID):
         connection = sqlite3.connect('database.db')
         cursor = connection.cursor()
