@@ -1,0 +1,67 @@
+.open-case-container {
+    text-align: center;
+    padding: 40px;
+  }
+  
+  .case-strip-container {
+    position: relative;
+    width: 600px;          /* Bạn có thể chỉnh 600px, 800px, … tuỳ ý */
+    height: 140px;
+    margin: 30px auto;
+    overflow: hidden;
+    background-color: #222;
+    border-radius: 12px;
+    border: 2px solid #555;
+  }
+  
+  .case-strip {
+    display: flex;
+    align-items: center;
+    /* transform do JS canh chỉnh */
+  }
+  
+  .item {
+    width: 120px;
+    flex-shrink: 0;
+    padding: 5px;
+  }
+  
+  .item img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+  }
+  
+  .line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    background-color: red;
+    transform: translateX(-50%);
+    z-index: 10;
+  }
+  
+  .open-button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    background-color: #ff9800;
+    border: none;
+    color: white;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .open-button:hover:not(:disabled) {
+    background-color: #e68900;
+  }
+  
+  .open-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  

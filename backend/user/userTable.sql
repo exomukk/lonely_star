@@ -4,5 +4,5 @@ CREATE TABLE user (
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     LUCKY_SEED VARCHAR(255),
-    cash DECIMAL(10, 2) DEFAULT 0,
+    cash DECIMAL(10, 2) DEFAULT 0
 );

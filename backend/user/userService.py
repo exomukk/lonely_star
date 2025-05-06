@@ -7,7 +7,7 @@ class userService():
         self.randomTool = randomInterface
         pass
     def login(self, username, password):
-        if DatabaseInterface.login(username, password):
+        if self.database.login(username, password):
             return True
         else:
             return False

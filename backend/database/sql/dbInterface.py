@@ -15,21 +15,21 @@ class DatabaseInterface:
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user'")
         table_exists = self.cursor.fetchone() is not None
         if not table_exists:
-            with open('user/userTable.sql', 'r') as file:
+            with open(r'D:\Code\lonely_star\backend\user\userTable.sql', 'r') as file:
                 sql_script = file.read()
                 self.cursor.execute(sql_script)
 
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='blacklist'")
         blacklist_table_exists = self.cursor.fetchone() is not None
         if not blacklist_table_exists:
-            with open('blacklist/blacklist.sql', 'r') as file:
+            with open(r'D:\Code\lonely_star\backend\blacklist/blacklist.sql', 'r') as file:
                 sql_script = file.read()
                 self.cursor.execute(sql_script)
 
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='upgraderoom'")
         blacklist_table_exists = self.cursor.fetchone() is not None
         if not blacklist_table_exists:
-            with open('upgradeSkin/upgradeRecord.sql', 'r') as file:
+            with open(r'D:\Code\lonely_star\backend\upgradeSkin/upgradeRecord.sql', 'r') as file:
                 sql_script = file.read()
                 self.cursor.execute(sql_script)
 
@@ -47,7 +47,7 @@ class DatabaseInterface:
     def checkIfBlacklisted(self,jwt):
         connection = sqlite3.connect('database.db')
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM blacklist WHERE jwt = ?", (jwt,))
+        cursor.execute("SELECT * FROM blacklist WHERE blacklist = ?", (jwt,))
         result = cursor.fetchone()
         cursor.close()
         connection.close()
