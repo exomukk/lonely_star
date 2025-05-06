@@ -70,11 +70,14 @@ class upgradeRoomService:
                     result = randomInterface.randomize_360(randomInterface.pseudo_random(), userID, luckySeed)
                     if startRange <= result <= endRange:
                         self.upgradeSuccess(userID, userWeaponID, expectedWeaponID)
-                        return {"success": True, "reason": "You lucky today lil bro 🎁"}
+                        return True
                     else:
                         self.upgradeFailed(userID, userWeaponID, expectedWeaponID)
-                        return {"success": False, "reason": "How about trying higher rate 🔥"}
-                return {"success": False, "reason": "Try to make it 100% success huh 🤓"}
-            return {"success": False, "reason": "Haha, try to upgrade the skin 2 times ? Not applicable here 😉"}
-        return {"success": False, "reason": "You don't have the skin, don't try to spam with custom responses 😊"}
+                        return False
+                print("Roll rate range error")
+                return False
+            print("Item is executing")
+            return False
+        print("Item not found in inventory")
+        return False
 

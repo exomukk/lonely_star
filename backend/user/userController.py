@@ -13,21 +13,6 @@ class userController:
         self.randomTool = randomInterface.randomInterface()
         pass
 
-
-    # def login(self, inputs):
-    #     input_loaded = json.loads(inputs)
-    #     username = input_loaded['username']
-    #     password = input_loaded['password']
-    #     if self.userService.login(username,password):
-    #         jwt = create_access_token(identity=username)
-    #         return {
-    #             'status': 'success',
-    #             'jwt': jwt
-    #         },jwt
-    #     else:
-    #         return {'status': 'error', 'message': 'Invalid username or password'}
-
-    # Viết lại backend repsonse jwt dưới dạng HttpOnly Cookie để tránh XSS
     def login(self, inputs):
         input_loaded = json.loads(inputs)
         username = input_loaded['username']

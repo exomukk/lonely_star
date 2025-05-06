@@ -7,19 +7,18 @@ class userService():
         self.randomTool = randomInterface
         pass
     def login(self, username, password):
-        if self.database.login(username, password):
+        if DatabaseInterface.login(username, password):
             return True
         else:
             return False
     def register(self, name, username, password, lucky_seed):
-        user_temp = User(name, username, password, lucky_seed)
-        if self.database.insertingUser(user_temp):
+        user_temp = User(name, username, password, lucky_seed,0)
+        if DatabaseInterface.insertingUser(user_temp):
             return True
         else:
             return False
 
     def getLuckySeedByID(self, id):
-
         return DatabaseInterface.getLuckySeed(id)
 
     def addCash(self,userID, amount):

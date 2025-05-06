@@ -1,5 +1,6 @@
 import sqlite3
 import time
+from bcryptService.bcryptService import BcryptService
 
 from injector import singleton
 
@@ -103,29 +104,31 @@ class DatabaseInterface:
         else:
             return None
 
-    def login(self,username, password):
+    def login(self, username, password):
         connection = sqlite3.connect('database.db')
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM user WHERE username = ? AND password = ?", (username, password))
+        cursor.execute("SELECT password FROM user WHERE username = ?", (username,))
         result = cursor.fetchone()
         cursor.close()
         connection.close()
-        return result is not None
+        if result is None:
+            return False
+        stored_pass = result[0]
+        bcrypt_service = BcryptService()
+        return bcrypt_service.check_password(password, stored_pass)
 
-    def insertingUser(self,userInfo: user):
+    def insertingUser(self, userInfo: user):
         retry_count = 0
         max_retries = 10
-
+        bcrypt_service = BcryptService()
         while retry_count < max_retries:
             try:
-                connection = sqlite3.connect('database.db', timeout=10.0)  # Add timeout
+                connection = sqlite3.connect('database.db', timeout=10.0)
                 cursor = connection.cursor()
-                name = userInfo.name
-                username = userInfo.username
-                password = userInfo.password
-                lucky_seed = userInfo.lucky_seed
-                cursor.execute("INSERT INTO user (name, username, password, lucky_seed,cash) VALUES (?,?,?,?,0.00)",
-                               (name, username, password, lucky_seed))
+                hashed_password = bcrypt_service.hash_password(userInfo.password)
+                cursor.execute(
+                    "INSERT INTO user (name, username, password, lucky_seed, cash) VALUES (?, ?, ?, ?, 0.00)",
+                    (userInfo.name, userInfo.username, hashed_password, userInfo.lucky_seed))
                 connection.commit()
                 cursor.close()
                 connection.close()

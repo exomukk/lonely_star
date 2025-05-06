@@ -64,6 +64,7 @@ def me():
     }), 200
 
 @app.route('/register', methods=['POST'])
+#check ip
 def register():
     inputs = request.data.decode('utf-8')
     return jsonify(userController.register(inputs))
