@@ -51,7 +51,8 @@ def entrypoint():
 @jwt.token_in_blocklist_loader
 def check_if_token_in_blocklist(jwt_header, jwt_payload):
     jti = jwt_payload['jti']
-    token_in_blocklist = DatabaseInterface.checkIfBlacklisted(jti)
+    db = DatabaseInterface()
+    token_in_blocklist = db.checkIfBlacklisted(jti)
     return token_in_blocklist
 @app.route("/me", methods=["GET"])
 @jwt_required()
