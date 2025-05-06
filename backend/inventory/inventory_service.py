@@ -1,6 +1,7 @@
 from database.nosql.mongoInterface import inventory_collection
 from datetime import datetime
 from inventory.inventory import InventoryItem
+from gun.gun_service import GunService
 
 def add_item_to_inventory(user_id, skin_id, chest_id=None, source="chest"):
     inventory = inventory_collection.find_one({"_id": user_id})
@@ -72,3 +73,30 @@ def check_if_exist_in_inventory(user_id, skin_id):
     if not inventory:
         return False
     return any(item["skin_id"] == skin_id for item in inventory.get("items", []))
+
+
+def sell_item_from_inventory(user_id, skin_id):
+    inventory = inventory_collection.find_one({"_id": user_id})
+    if not inventory:
+        return {"success": False, "reason": "Inventory not found"}
+
+    for item in inventory.get("items", []):
+        if item["skin_id"] == skin_id:
+            price = GunService.get_price(skin_id)
+            if item.get("quantity", 1) > 1:
+                inventory_collection.update_one(
+                    {"_id": user_id, "items.skin_id": skin_id},
+                    {"$inc": {"items.$.quantity": -1}}
+                )
+            else:
+                # Xoá item nếu chỉ còn 1
+                inventory_collection.update_one(
+                    {"_id": user_id},
+                    {"$pull": {"items": {"skin_id": skin_id}}}
+                )
+
+            #Cộng tiền vào database
+
+            return {"success": True, "value": price}
+
+    return {"success": False, "reason": "Skin not found in inventory"}

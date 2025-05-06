@@ -1,7 +1,7 @@
 import json
 import random
 from importlib import resources
-from backend.gun.gun import Gun
+from gun.gun import Gun
 
 class GunService:
     def __init__(self):
@@ -37,4 +37,10 @@ class GunService:
         for gun in self.guns:
             if gun.id == skin_id:
                 return gun.to_dict()
+        return None
+
+    def get_skin_by_id_object(self,skin_id):
+        for gun in self.guns:
+            if gun.id == skin_id:
+                return gun
         return None
