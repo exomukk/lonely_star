@@ -1,5 +1,6 @@
 class User:
-    def __init__(self, name, username, password, lucky_seed):
+    def __init__(self, id, name, username, password, lucky_seed):
+        self.id = id
         self.name = name
         self.username = username
         self.password = password

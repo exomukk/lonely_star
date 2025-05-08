@@ -4,7 +4,7 @@ import json
 from datetime import datetime,timedelta
 from Geocoder.geocoderInterface import geocoderInterface
 from bcryptService.bcryptService import BcryptService
-
+from user.user import User
 from injector import singleton
 
 from user import user
@@ -17,7 +17,6 @@ class DatabaseInterface:
         self.geocoderInterface = geocoderInterface
         with open("database/sql/darkweb2017_top-1000.txt","r") as file:
             self.password_list = file.readlines()
-
 
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user'")
         table_exists = self.cursor.fetchone() is not None
@@ -127,18 +126,22 @@ class DatabaseInterface:
 
     def login(self, username, password):
         connection = sqlite3.connect('database.db')
+        connection.row_factory = sqlite3.Row
         cursor = connection.cursor()
-        cursor.execute("SELECT password FROM user WHERE username = ?", (username,))
+        cursor.execute("SELECT id, password, name, username, lucky_seed, cash FROM user WHERE username = ?",(username,))
         result = cursor.fetchone()
         cursor.close()
         connection.close()
         if result is None:
             return False
-        stored_pass = result[0]
+        stored_pass = result["password"]
         bcrypt_service = BcryptService()
-        return bcrypt_service.check_password(password, stored_pass)
+        if bcrypt_service.check_password(password, stored_pass):
+            return True
+        else:
+            return False
 
-    def insertingUser(self, userInfo: user):
+    def insertingUser(self, userInfo: User):
         retry_count = 0
         max_retries = 10
         bcrypt_service = BcryptService()
@@ -146,12 +149,12 @@ class DatabaseInterface:
             try:
                 connection = sqlite3.connect('database.db', timeout=10.0)
                 cursor = connection.cursor()
-                if self.check_pass_in_dictionary(str(userInfo.password)+"\n"):
+                if self.check_pass_in_dictionary(str(userInfo.password) + "\n"):
                     return False
                 hashed_password = bcrypt_service.hash_password(userInfo.password)
                 cursor.execute(
-                    "INSERT INTO user (name, username, password, lucky_seed, cash) VALUES (?, ?, ?, ?, 0.00)",
-                    (userInfo.name, userInfo.username, hashed_password, userInfo.lucky_seed))
+                    "INSERT INTO user (id, name, username, password, lucky_seed, cash) VALUES (?, ?, ?, ?, ?, 0.00)",
+                    (userInfo.id, userInfo.name, userInfo.username, hashed_password, userInfo.lucky_seed))
                 connection.commit()
                 cursor.close()
                 connection.close()
@@ -169,6 +172,7 @@ class DatabaseInterface:
                 print(f"Error inserting user: {e}")
                 return False
         return None
+
     def check_pass_in_dictionary(self,password):
         return password in self.password_list
 
@@ -187,19 +191,11 @@ class DatabaseInterface:
         one_minute_ago = now - timedelta(seconds=60)
         geo_location = self.geocoderInterface.get_location_from_ip(ip)
         geo_location_str = json.dumps(geo_location)  # e.g. "[21.0245, 105.8412]"
-
-        cursor = self.conn.cursor()
+        connection = sqlite3.connect('database.db', timeout=10.0)
+        cursor = connection.cursor()
 
         #Count how many times this exact IP + user + URL + geo_location has been called in last minute
-        cursor.execute("""
-                       SELECT COUNT(*) AS cnt
-                       FROM request_logs
-                       WHERE ip = ?
-                         AND user_id = ?
-                         AND request_url = ?
-                         AND geo_location = ?
-                         AND created_at >= ?
-                       """, (ip, user_id, request_url, geo_location_str, one_minute_ago))
+        cursor.execute("""SELECT COUNT(*) AS cnt FROM request_logs WHERE ip = ? AND user_id = ? AND request_url = ? AND geo_location = ? AND created_at >= ?""", (ip, user_id, request_url, geo_location_str, one_minute_ago))
         row = cursor.fetchone()
         same_hit_count = row["cnt"] if row else 0
 
@@ -208,16 +204,24 @@ class DatabaseInterface:
             return True
 
         #Check if this IP+user has requested from multiple geolocations in the last minute
-        cursor.execute("""
-                       SELECT COUNT(DISTINCT geo_location) AS loc_count
-                       FROM request_logs
-                       WHERE ip = ?
-                         AND user_id = ?
-                         AND created_at >= ?
-                       """, (ip, user_id, one_minute_ago))
+        cursor.execute("""SELECT COUNT(DISTINCT geo_location) AS loc_count FROM request_logs WHERE ip = ? AND user_id = ? AND created_at >= ?""", (ip, user_id, one_minute_ago))
         row = cursor.fetchone()
         distinct_locs = row["loc_count"] if row else 1
-
+        cursor.close()
+        connection.close()
         if distinct_locs > 1:
             return True
         return False
+
+    def getUserIdByUsername(self, username):
+        import sqlite3
+        connection = sqlite3.connect('database.db')
+        connection.row_factory = sqlite3.Row
+        cursor = connection.cursor()
+        cursor.execute("SELECT id FROM user WHERE username = ?", (username,))
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        if result is None:
+            return None
+        return result["id"]
