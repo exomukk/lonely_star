@@ -5,10 +5,9 @@ from gun.gun import Gun
 
 class GunService:
     def __init__(self):
-        with resources.files("backend.gun").joinpath("weapons.json").open("r", encoding="utf-8") as f:
+        with resources.files("gun").joinpath("weapons.json").open("r", encoding="utf-8") as f:
             self.guns_data = json.load(f)
             self.guns_data = list(self.guns_data.values())
-            # print(json.dumps(self.guns_data, indent=4))
         self.guns = [Gun(**gun) for gun in self.guns_data]
 
     def get_by_price_range(self, min_price, max_price):

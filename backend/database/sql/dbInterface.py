@@ -1,5 +1,8 @@
 import sqlite3
 import time
+import json
+from datetime import datetime,timedelta
+from Geocoder.geocoderInterface import geocoderInterface
 from bcryptService.bcryptService import BcryptService
 
 from injector import singleton
@@ -11,25 +14,43 @@ class DatabaseInterface:
     def __init__(self):
         self.connection = sqlite3.connect('database.db')
         self.cursor = self.connection.cursor()
+        self.geocoderInterface = geocoderInterface
+        with open("database/sql/darkweb2017_top-1000.txt","r") as file:
+            self.password_list = file.readlines()
+
 
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user'")
         table_exists = self.cursor.fetchone() is not None
         if not table_exists:
-            with open(r'D:\Code\lonely_star\backend\user\userTable.sql', 'r') as file:
+            with open(r'user\userTable.sql', 'r') as file:
                 sql_script = file.read()
                 self.cursor.execute(sql_script)
 
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='blacklist'")
         blacklist_table_exists = self.cursor.fetchone() is not None
         if not blacklist_table_exists:
-            with open(r'D:\Code\lonely_star\backend\blacklist/blacklist.sql', 'r') as file:
+            with open('blacklist/blacklist.sql', 'r') as file:
                 sql_script = file.read()
                 self.cursor.execute(sql_script)
 
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='upgraderoom'")
         blacklist_table_exists = self.cursor.fetchone() is not None
         if not blacklist_table_exists:
-            with open(r'D:\Code\lonely_star\backend\upgradeSkin/upgradeRecord.sql', 'r') as file:
+            with open('upgradeRecord.sql', 'r') as file:
+                sql_script = file.read()
+                self.cursor.execute(sql_script)
+
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='upgraderoom'")
+        blacklist_table_exists = self.cursor.fetchone() is not None
+        if not blacklist_table_exists:
+            with open('upgradeSkin/upgradeRecord.sql', 'r') as file:
+                sql_script = file.read()
+                self.cursor.execute(sql_script)
+
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='request_logs'")
+        blacklist_table_exists = self.cursor.fetchone() is not None
+        if not blacklist_table_exists:
+            with open('database/sql/requestLogs.sql', 'r') as file:
                 sql_script = file.read()
                 self.cursor.execute(sql_script)
 
@@ -125,6 +146,8 @@ class DatabaseInterface:
             try:
                 connection = sqlite3.connect('database.db', timeout=10.0)
                 cursor = connection.cursor()
+                if self.check_pass_in_dictionary(str(userInfo.password)+"\n"):
+                    return False
                 hashed_password = bcrypt_service.hash_password(userInfo.password)
                 cursor.execute(
                     "INSERT INTO user (name, username, password, lucky_seed, cash) VALUES (?, ?, ?, ?, 0.00)",
@@ -146,3 +169,55 @@ class DatabaseInterface:
                 print(f"Error inserting user: {e}")
                 return False
         return None
+    def check_pass_in_dictionary(self,password):
+        return password in self.password_list
+
+    def add_request_log(self,user_id,request_url,ip_address,geo_location,city):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute(
+            "INSERT INTO request_logs (user_id, request_url, ip_address, geo_location, city) VALUES (?, ?, ?, ?, ?)",
+            (user_id, request_url, ip_address, geo_location, city))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+    def check_abnormal_request(self, ip, user_id, request_url):
+        now = datetime.utcnow()
+        one_minute_ago = now - timedelta(seconds=60)
+        geo_location = self.geocoderInterface.get_location_from_ip(ip)
+        geo_location_str = json.dumps(geo_location)  # e.g. "[21.0245, 105.8412]"
+
+        cursor = self.conn.cursor()
+
+        #Count how many times this exact IP + user + URL + geo_location has been called in last minute
+        cursor.execute("""
+                       SELECT COUNT(*) AS cnt
+                       FROM request_logs
+                       WHERE ip = ?
+                         AND user_id = ?
+                         AND request_url = ?
+                         AND geo_location = ?
+                         AND created_at >= ?
+                       """, (ip, user_id, request_url, geo_location_str, one_minute_ago))
+        row = cursor.fetchone()
+        same_hit_count = row["cnt"] if row else 0
+
+        # If one endpoint is hammered more than 10× in one minute from same geo, mark abnormal
+        if same_hit_count >= 10:
+            return True
+
+        #Check if this IP+user has requested from multiple geolocations in the last minute
+        cursor.execute("""
+                       SELECT COUNT(DISTINCT geo_location) AS loc_count
+                       FROM request_logs
+                       WHERE ip = ?
+                         AND user_id = ?
+                         AND created_at >= ?
+                       """, (ip, user_id, one_minute_ago))
+        row = cursor.fetchone()
+        distinct_locs = row["loc_count"] if row else 1
+
+        if distinct_locs > 1:
+            return True
+        return False

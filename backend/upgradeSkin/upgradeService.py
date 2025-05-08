@@ -9,6 +9,8 @@ from database.sql.dbInterface import DatabaseInterface as dbInterface
 
 class upgradeRoomService:
     def __init__(self):
+        self.userService = userService()
+        self.GunService = GunService()
         pass
 
     def rollRate(self,userID, userWeaponID, expectedWeaponID):
@@ -61,8 +63,7 @@ class upgradeRoomService:
         if InventoryService.check_if_exist_in_inventory(userID, userWeaponID):
             if InventoryService.check_item_executing(userWeaponID, "false"):
                 if abs(endRange - startRange) % 360 - self.rollRate(userID, userWeaponID, expectedWeaponID) < 2:
-                    InventoryService.change_item_executing(userWeaponID,
-                                                           "true")  # nhac beo them cai FOR UPDATE o database
+                    InventoryService.change_item_executing(userWeaponID,"true")  # nhac beo them cai FOR UPDATE o database
                     if userService.getLuckySeedByID(userID) is None:
                         luckySeed = randomInterface.pseudo_random()
                     else:
