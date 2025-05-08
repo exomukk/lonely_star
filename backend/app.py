@@ -46,9 +46,6 @@ def entrypoint():
 @app.route("/me", methods=["GET"])
 @jwt_required()
 def me():
-    user_id = get_jwt_identity()
-    ip = ...
-    requestLoggerInterface.check_abnormal_request(ip, user_id, request.url)
     current_user = get_jwt_identity()
     return jsonify({
         'status': 'success',
