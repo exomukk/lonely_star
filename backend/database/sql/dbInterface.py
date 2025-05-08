@@ -35,7 +35,7 @@ class DatabaseInterface:
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='upgraderoom'")
         blacklist_table_exists = self.cursor.fetchone() is not None
         if not blacklist_table_exists:
-            with open('upgradeRecord.sql', 'r') as file:
+            with open('upgradeSkin/upgradeRecord.sql', 'r') as file:
                 sql_script = file.read()
                 self.cursor.execute(sql_script)
 
