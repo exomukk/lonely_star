@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './login.css';
 
@@ -7,6 +7,19 @@ const Login = () => {
     username: '',
     password: ''
   });
+
+  // IP address của client
+  const [clientIP, setClientIP] = useState('');
+
+  // Khi component mount, fetch IP public
+  useEffect(() => {
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => setClientIP(data.ip))
+      .catch(err => {
+        console.error('Không lấy được IP:', err);
+      });
+  }, []);
 
   const [errorMessage, setErrorMessage] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState('');
@@ -23,7 +36,8 @@ const Login = () => {
       const response = await fetch('http://127.0.0.1:5000/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Client-IP': clientIP // Gửi IP client trong header
         },
         body: JSON.stringify(formData),
         credentials: 'include'
@@ -69,7 +83,7 @@ const Login = () => {
           onChange={handleInputChange}
           required
         />
-        
+
         <button type="submit">Login</button>
         <p>
           Don't have an account? <Link to="/register">Register</Link>

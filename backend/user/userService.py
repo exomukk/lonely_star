@@ -12,20 +12,20 @@ class userService():
         else:
             return False
     def register(self, name, username, password, lucky_seed):
-        user_temp = User(name, username, password, lucky_seed,0)
-        if DatabaseInterface.insertingUser(user_temp):
+        user_temp = User(name, username, password, lucky_seed)
+        if self.database.insertingUser(user_temp):
             return True
         else:
             return False
 
     def getLuckySeedByID(self, id):
-        return DatabaseInterface.getLuckySeed(id)
+        return self.database.getLuckySeed(id)
 
     def addCash(self,userID, amount):
         try:
-            DatabaseInterface.addCash(userID, amount)
+            self.database.addCash(userID, amount)
             return True
         except:
             return False
     def getCash(self, userID):
-        return DatabaseInterface.getCash(userID)
+        return self.database.getCash(userID)
