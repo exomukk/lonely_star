@@ -4,7 +4,7 @@ from flask_mail import Message
 
 # in‐memory store
 
-class otp_service:
+class OTPService:
     def __init__(self):
         self.otp_store = {}
         self.OTP_TTL = 5 * 60
@@ -16,14 +16,19 @@ class otp_service:
         self.otp_store[email] = (code, time.time() + self.OTP_TTL)
 
     def verify_otp(self,email, code):
+        print("verify-otp: ",email, code)
         record = self.otp_store.get(email)
+        print(record)
         if not record:
+            print('Verify OTP: Chưa gửi hoặc đã hết hạn')
             return False, "Chưa gửi hoặc đã hết hạn"
         real, expires = record
         if time.time() > expires:
+            print('Verify OTP: đã hết hạn')
             self.otp_store.pop(email, None)
             return False, "OTP đã hết hạn"
         if code != real:
+            print('Verify OTP: Sai')
             return False, "OTP không đúng"
         self.otp_store.pop(email, None)
         return True, None
@@ -40,3 +45,5 @@ class otp_service:
         if not mail:
             raise RuntimeError("Flask-Mail chưa được khởi tạo")
         mail.send(msg)
+
+otp_service = OTPService()
