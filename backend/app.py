@@ -298,4 +298,4 @@ def getCurrentCash():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(ssl_context=('ca_certs/cert.pem', 'ca_certs/key.pem'))
