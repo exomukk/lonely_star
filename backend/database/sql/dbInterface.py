@@ -14,7 +14,7 @@ class DatabaseInterface:
     def __init__(self):
         self.connection = sqlite3.connect('database.db')
         self.cursor = self.connection.cursor()
-        self.geocoderInterface = geocoderInterface
+        self.geocoderInterface = geocoderInterface()
         with open("database/sql/darkweb2017_top-1000.txt","r") as file:
             self.password_list = file.readlines()
 

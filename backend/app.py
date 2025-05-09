@@ -252,4 +252,4 @@ def check_if_token_in_blocklist(jwt_header, jwt_payload):
     return token_in_blocklist
 
 if __name__ == '__main__':
-    app.run()
+    app.run(ssl_context=('ca_certs/cert.pem', 'ca_certs/key.pem'))
