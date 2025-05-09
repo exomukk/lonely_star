@@ -1,58 +1,56 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import OTPModal from '../otp/OTP';
 import './register.css';
 
 const Register = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    username: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ name: '', username: '', password: '' });
+  const [errorMessage, setError] = useState('');
+  const [successMessage, setSuccess] = useState('');
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+ 
+  const [registeredEmail, setRegisteredEmail] = useState('');
 
-  // Cập nhật giá trị input khi người dùng nhập
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(f => ({ ...f, [name]: value }));
   };
 
-  // Xử lý sự kiện khi người dùng gửi form
   const handleSubmit = async (e) => {
-    console.log(formData);
     e.preventDefault();
+    setError(''); setSuccess('');
 
-    // Gửi request register đến server
     try {
-      const response = await fetch('http://127.0.0.1:5000/register', {
+      const res = await fetch('https://127.0.0.1:5000/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
+      const data = await res.json();
 
-      const result = await response.json();
-
-      if (response.status === 200) {
-        setSuccessMessage('Registration successful! Please check your email for verification.');
-        setErrorMessage('');
+      if (res.ok) {
+        setSuccess('Đăng ký thành công! Vui lòng nhập mã OTP để kích hoạt.');
+        setRegisteredEmail(formData.username);
+        // Mở popup OTP
+        setShowOtpModal(true);
       } else {
-        setErrorMessage(result.message || 'Registration failed. Please try again.');
-        setSuccessMessage('');
+        setError(data.message || 'Đăng ký thất bại. Vui lòng thử lại.');
       }
-    } catch (error) {
-      setErrorMessage(error.message || 'An error occurred. Please try again.');
-      setSuccessMessage('');
+    } catch (err) {
+      setError('Lỗi mạng. Vui lòng thử lại.');
     }
+  };
+
+  const handleOtpSuccess = () => {
+    // Nếu xác thực OTP thành công thì chuyển về trang chủ
+    window.location.href = '/';
   };
 
   return (
     <div className="register-container">
       <form className="register-form" onSubmit={handleSubmit}>
         <h2>Register</h2>
-
         {errorMessage && <p className="error-message">{errorMessage}</p>}
         {successMessage && <p className="success-message">{successMessage}</p>}
 
@@ -65,9 +63,9 @@ const Register = () => {
           required
         />
         <input
-          type="text"
+          type="email"
           name="username"
-          placeholder="Username"
+          placeholder="Email"
           value={formData.username}
           onChange={handleInputChange}
           required
@@ -85,6 +83,14 @@ const Register = () => {
           Already have an account? <Link to="/login">Login</Link>
         </p>
       </form>
+
+      {showOtpModal && (
+        <OTPModal
+          email={registeredEmail}
+          onVerifySuccess={handleOtpSuccess}
+          onClose={() => setShowOtpModal(false)}
+        />
+      )}
     </div>
   );
 };

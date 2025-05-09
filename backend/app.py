@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, g
+from flask_mail import Mail
 from flask_cors import CORS
 from flask_jwt_extended import (
     JWTManager, jwt_required,
@@ -23,6 +24,8 @@ from inventory.inventory_service import (
 )
 from chest.chest_service import get_all_chests, get_chest_by_id, random_rarity
 
+from otp.otp_service import generate_otp, store_otp, send_otp_mail
+
 # ==== Khởi tạo app ====
 app = Flask(__name__)
 
@@ -32,6 +35,19 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
 # CORS (dev)
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
+
+# Cấu hình Flask-Mail
+app.config.update({
+    "MAIL_SERVER":   "smtp.gmail.com",
+    "MAIL_PORT":     587,
+    "MAIL_USE_TLS":  True,
+    "MAIL_USERNAME": "wdev2616@gmail.com",
+    "MAIL_PASSWORD": "xrqa voxy uwbs jffx",
+    "MAIL_DEFAULT_SENDER": ("WebDev", "wdev2616@gmail.com")
+})
+mail = Mail(app)
+from otp.routes import otp_bp
+app.register_blueprint(otp_bp)
 
 # JWT configs
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
@@ -121,12 +137,25 @@ def me():
 def register():
     data = request.get_json(silent=True) or {}
     # nếu muốn dùng IP: userController.register(data, g.client_ip)
+    # gọi controller để tạo user
+    result = userController.register(data)
+    email = data.get('username')
+    otp_code = generate_otp()
+    store_otp(email, otp_code)
+    try:
+        send_otp_mail(email, otp_code)
+        print(f"OTP {otp_code} sent to {email}")
+    except Exception as e:
+        print(f"Failed to send OTP to {email}: {e}")
+            # tuỳ chọn: trả về error nếu cần
+            # return jsonify({'status':'error','message':'Không gửi được OTP'}), 500
     return jsonify(userController.register(data))
 
 
 # ==== Route /login đã cập nhật ====
 @app.route('/login', methods=['POST'])
 def login():
+    print('calling login')
     data = request.get_json(silent=True) or {}
     client_ip = g.client_ip
 
@@ -298,4 +327,4 @@ def getCurrentCash():
 
 
 if __name__ == '__main__':
-    app.run(ssl_context=('ca_certs/cert.pem', 'ca_certs/key.pem'))
+    app.run(ssl_context=('ca_certs/localhost+2.pem', 'ca_certs/localhost+2-key.pem'))
