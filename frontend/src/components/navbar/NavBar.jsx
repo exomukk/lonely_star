@@ -9,7 +9,7 @@ const Navbar = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/me', {
+        const response = await fetch('http://scamclubbe.creammjnk.uk/me', {
           method: 'GET',
           credentials: 'include',  // Gửi cookie kèm theo request
         });
@@ -49,7 +49,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/logout', {
+      const response = await fetch('http://scamclubbe.creammjnk.uk/logout', {
         method: 'POST',
         credentials: 'include',  // Gửi cookie kèm theo request
       });

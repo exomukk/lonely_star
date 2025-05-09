@@ -28,7 +28,7 @@ const OTP = ({ email, onVerifySuccess, onClose }) => {
 
     const handleVerify = async () => {
         try {
-            const res = await fetch('https://127.0.0.1:5000/verify-otp', {
+            const res = await fetch('https://scamclubbe.creammjnk.uk/verify-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, otp })
@@ -46,7 +46,7 @@ const OTP = ({ email, onVerifySuccess, onClose }) => {
 
     const handleResend = async () => {
         try {
-            const res = await fetch('https://127.0.0.1:5000/resend-otp', {
+            const res = await fetch('https://scamclubbe.creammjnk.uk/resend-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })

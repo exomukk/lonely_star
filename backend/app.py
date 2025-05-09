@@ -1,5 +1,6 @@
 # Importing required libraries and modules
-from flask import Mail,Flask, request, jsonify
+from flask import Flask, request, jsonify
+from flask_mail import Mail
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies, get_jwt
 from flask_jwt_extended import set_access_cookies
@@ -283,4 +284,4 @@ def check_if_token_in_blocklist(jwt_header, jwt_payload):
     return token_in_blocklist
 
 if __name__ == '__main__':
-    app.run(ssl_context=('ca_certs/cert.pem', 'ca_certs/key.pem'))
+    app.run(ssl_context=('ca_certs/localhost+2.pem', 'ca_certs/localhost+2-key.pem'))

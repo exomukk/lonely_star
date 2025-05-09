@@ -22,7 +22,7 @@ const Register = () => {
     setError(''); setSuccess('');
 
     try {
-      const res = await fetch('https://127.0.0.1:5000/register', {
+      const res = await fetch('https://scamclubbe.creammjnk.uk/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
