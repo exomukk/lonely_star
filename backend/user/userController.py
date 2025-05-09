@@ -26,7 +26,9 @@ class userController:
 
     def register(self, inputs):
         try:
-            input_loaded = json.loads(inputs)
+            print(inputs)
+            # input_loaded = json.loads(inputs)
+            input_loaded = inputs
             name = input_loaded['name']
             username = input_loaded['username']
             password = input_loaded['password']
