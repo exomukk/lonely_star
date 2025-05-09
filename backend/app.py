@@ -1,42 +1,46 @@
-from flask import Flask, request, jsonify, g
-from flask_mail import Mail
+# Importing required libraries and modules
+from flask import Mail,Flask, request, jsonify
 from flask_cors import CORS
-from flask_jwt_extended import (
-    JWTManager, jwt_required,
-    get_jwt_identity, unset_jwt_cookies, get_jwt,
-    set_access_cookies
-)
-from werkzeug.middleware.proxy_fix import ProxyFix
-from datetime import timedelta
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies, get_jwt
+from flask_jwt_extended import set_access_cookies
 from upgradeSkin.upgradeService import upgradeRoomService
-from database.sql.dbInterface import DatabaseInterface
-
-import time
+from datetime import timedelta
+from database.sql.dbInterface import DatabaseInterface as db
+DatabaseInterface = db()
+from database.sql.requestLoggerInterface import requestLoggerInterface
+from werkzeug.middleware.proxy_fix import ProxyFix
 import user.userController as userControllerInterface
+userController = userControllerInterface.userController()
 import random_heuristic.randomInterface as randomInterface
-
-# Các service riêng
+randomTool = randomInterface.randomInterface()
 from gun.gun_service import GunService
-from inventory.inventory_service import (
-    sell_item_from_inventory,
-    get_inventory, add_item_to_inventory,
-    check_item_executing, change_item_executing
-)
+from inventory.inventory_service import sell_item_from_inventory
 from chest.chest_service import get_all_chests, get_chest_by_id, random_rarity
-
-from otp.otp_service import generate_otp, store_otp, send_otp_mail
-
-# ==== Khởi tạo app ====
+from inventory.inventory_service import (get_inventory,add_item_to_inventory,check_item_executing,change_item_executing)
+from otp.otp_service import otp_service
+gun_service = GunService()
+otp_service = otp_service()
 app = Flask(__name__)
 
-# Đặt ProxyFix ngay sau khi tạo app
-# Nếu deploy sau Nginx/ngrok, sẽ lấy đúng IP gốc trong request.remote_addr
+# Middleware to handle reverse proxy headers
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
-# CORS (dev)
+# Use CORS temporary for development
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
-# Cấu hình Flask-Mail
+# JWT configurations
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
+app.config['SECRET_KEY'] = randomTool.pseudo_random()
+app.config["JWT_SECRET_KEY"] = randomTool.pseudo_random()
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_COOKIE_SECURE'] = True
+app.config['JWT_COOKIE_SAMESITE'] = 'Lax'
+app.config['JWT_COOKIE_CSRF_PROTECT'] = True
+jwt = JWTManager(app)
+
+
+# Flask mail configuration
+
 app.config.update({
     "MAIL_SERVER":   "smtp.gmail.com",
     "MAIL_PORT":     587,
@@ -49,162 +53,82 @@ mail = Mail(app)
 from otp.routes import otp_bp
 app.register_blueprint(otp_bp)
 
-# JWT configs
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
-# import random
-randomTool = randomInterface.randomInterface()
-app.config['SECRET_KEY'] = randomTool.pseudo_random()
-app.config["JWT_SECRET_KEY"] = randomTool.pseudo_random()
-app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-app.config['JWT_COOKIE_SECURE'] = True
-app.config['JWT_COOKIE_SAMESITE'] = 'None'
-app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 
-jwt = JWTManager(app)
-
-# Khởi tạo controller và service
-userController = userControllerInterface.userController()
-gun_service = GunService()
-
-# ==== RATE-LIMIT & BAN IP ====
-ip_records = {}    # { ip: [timestamp, ...] }
-banned_ips = {}    # { ip: ban_end_timestamp }
-
-LIMIT = 10         # 10 requests
-WINDOW = 60        # trong 60 giây
-BAN_DURATION = 300 # ban 5 phút
-
-@app.before_request
-def attach_and_rate_limit():
-    # Lấy IP client từ header X-Forwarded-For hoặc request.remote_addr
-    forwarded = request.headers.get('X-Forwarded-For')
-    ip = (forwarded.split(',')[0].strip() if forwarded else request.remote_addr)
-    g.client_ip = ip
-
-    now = time.time()
-    # Kiểm tra ban
-    ban_until = banned_ips.get(ip)
-    if ban_until and now < ban_until:
-        return jsonify({
-            "error": "Too many requests. You are banned for a while."
-        }), 429
-    elif ban_until:
-        # hết hạn ban
-        banned_ips.pop(ip, None)
-
-    # Cập nhật record trong WINDOW
-    times = ip_records.get(ip, [])
-    times = [t for t in times if now - t < WINDOW]
-    times.append(now)
-    ip_records[ip] = times
-
-    # Nếu vượt limit → ban
-    if len(times) > LIMIT:
-        banned_ips[ip] = now + BAN_DURATION
-        ip_records.pop(ip, None)
-        return jsonify({
-            "error": f"Exceeded {LIMIT} requests per {WINDOW}s. "
-                     f"Banned for {BAN_DURATION//60} minutes."
-        }), 429
-    return None
-
-
-# ==== Các route cơ bản ====
+# Main pages and functions routes
 @app.route('/')
 @app.route('/index')
 @app.route('/home')
 def entrypoint():
     return "../main.html"
 
-
-@jwt.token_in_blocklist_loader
-def check_if_token_in_blocklist(jwt_header, jwt_payload):
-    jti = jwt_payload['jti']
-    db = DatabaseInterface()
-    return db.checkIfBlacklisted(jti)
-
-
 @app.route("/me", methods=["GET"])
 @jwt_required()
 def me():
+    current_user = get_jwt_identity()
     return jsonify({
         'status': 'success',
-        'username': get_jwt_identity(),
+        'username': current_user,
     }), 200
 
-
 @app.route('/register', methods=['POST'])
+#check ip
 def register():
     data = request.get_json(silent=True) or {}
     # nếu muốn dùng IP: userController.register(data, g.client_ip)
     # gọi controller để tạo user
     result = userController.register(data)
     email = data.get('username')
-    otp_code = generate_otp()
-    store_otp(email, otp_code)
+    otp_code = otp_service.generate_otp()
+    otp_service.store_otp(email, otp_code)
     try:
-        send_otp_mail(email, otp_code)
+        otp_service.send_otp_mail(email, otp_code)
         print(f"OTP {otp_code} sent to {email}")
     except Exception as e:
         print(f"Failed to send OTP to {email}: {e}")
-            # tuỳ chọn: trả về error nếu cần
-            # return jsonify({'status':'error','message':'Không gửi được OTP'}), 500
+        # tuỳ chọn: trả về error nếu cần
+        # return jsonify({'status':'error','message':'Không gửi được OTP'}), 500
     return jsonify(userController.register(data))
 
-
-# ==== Route /login đã cập nhật ====
 @app.route('/login', methods=['POST'])
 def login():
-    print('calling login')
-    data = request.get_json(silent=True) or {}
-    client_ip = g.client_ip
-
-    # Debug payload
-    print('DEBUG [login] payload:', { **data, 'client_ip': client_ip })
-
-    # Gọi controller
-    login_info, jwt_token = userController.login(data, client_ip)
-
-    # Đính IP vào response
-    login_info['client_ip'] = client_ip
-
-    response = jsonify(login_info)
+    inputs = request.data.decode('utf-8')
+    login_info, jwt_token = userController.login(inputs)
+    json_output = jsonify(login_info)
     if jwt_token:
-        set_access_cookies(response, jwt_token)
-    return response
-
+        set_access_cookies(json_output, jwt_token)
+    return json_output
 
 @app.route('/logout', methods=['POST'])
 def logout():
     DatabaseInterface.addToBlacklist(get_jwt()['jti'])
-    resp = jsonify({'status': 'success', 'message': 'Đăng xuất thành công'})
-    unset_jwt_cookies(resp)
-    return resp, 200
+    response = jsonify({'status': 'success', 'message': 'Đăng xuất thành công'})
+    unset_jwt_cookies(response)
+    return response, 200
 
 
-# ==== Gun Routes ====
+#Gun Routes
+
 @app.route('/api/gun/search', methods=['GET'])
 def api_search_gun():
     query = request.args.get('q', '')
     result = [g.to_dict() for g in gun_service.search_by_name_or_price(query)]
     return jsonify(result)
 
-
 @app.route('/api/gun/price_range', methods=['GET'])
 def api_gun_by_price():
-    min_p = float(request.args.get('min', 0))
-    max_p = float(request.args.get('max', 9999))
-    result = [g.to_dict() for g in gun_service.get_by_price_range(min_p, max_p)]
+    min_price = float(request.args.get('min', 0))
+    max_price = float(request.args.get('max', 9999))
+    result = [g.to_dict() for g in gun_service.get_by_price_range(min_price, max_price)]
     return jsonify(result)
-
 
 @app.route('/api/gun/<gun_id>', methods=['GET'])
 def api_get_gun_by_id(gun_id):
     skin = gun_service.get_skin_by_id(gun_id)
-    return jsonify(skin) if skin else (jsonify({'error': 'not found'}), 404)
+    if skin:
+        return jsonify(skin)
+    return jsonify({'error': 'not found'}), 404
 
-
-# ==== Chest Routes ====
+# Chest Routes
 @app.route('/api/chests', methods=['GET'])
 def api_get_chests():
     chests = get_all_chests()
@@ -212,73 +136,74 @@ def api_get_chests():
         chest['_id'] = str(chest['_id'])
     return jsonify(chests), 200
 
-
-@app.route('/api/open_chest/<chest_id>', methods=['POST'])
+@app.route('/api/open_chest', methods=['POST'])
 @jwt_required()
-def api_open_chest(chest_id):
-    user_id = get_jwt_identity()
+def api_open_chest():
+    data = request.get_json()
+    chest_id = data.get('chest_id')
+    if not chest_id:
+        return jsonify({'error': 'chest_id is required'}), 400
 
     chest_info = get_chest_by_id(chest_id)
     if not chest_info:
         return jsonify({'error': 'Chest not found'}), 404
 
-    current_cash = userController.userService.getCash(user_id)
-    if current_cash is None:
-        return jsonify({'error': 'User not found'}), 404
-
-    if current_cash < chest_info.price:
-        return jsonify({'error': 'Not enough cash to open this chest'}), 400
-
-    userController.userService.addCash(user_id, -chest_info.price)
-
-    selected_rarity = random_rarity(chest_info, user_id)
+    selected_rarity = random_rarity(chest_info)
     skin = gun_service.get_skin_by_rarity(selected_rarity)
 
+    user_id = get_jwt_identity()
     add_item_to_inventory(user_id, skin['id'], chest_id)
 
     return jsonify({
         'message': 'Chest opened successfully',
         'skin': skin,
-        'rarity': selected_rarity,
-        'new_balance': current_cash - chest_info.price
+        'rarity': selected_rarity
     }), 200
 
-
-
-# ==== Inventory Routes ====
+# Inventory Routes
 @app.route('/api/inventory', methods=['GET'])
 @jwt_required()
 def api_get_inventory():
-    items = get_inventory(get_jwt_identity())
-    return jsonify({"status": "success", "inventory": items}), 200
-
+    user_id = get_jwt_identity()
+    items = get_inventory(user_id)
+    return jsonify({
+        "status": "success",
+        "inventory": items
+    }), 200
 
 @app.route('/api/item_state/<skin_id>', methods=['GET'])
 @jwt_required()
 def api_check_item_state(skin_id):
+    user_id = get_jwt_identity()
+    state = check_item_executing(user_id, skin_id)
     return jsonify({
         "skin_id": skin_id,
-        "isExecuting": check_item_executing(get_jwt_identity(), skin_id)
+        "isExecuting": state
     })
-
 
 @app.route('/api/item_state/<skin_id>', methods=['POST'])
 @jwt_required()
 def api_change_item_state(skin_id):
+    user_id = get_jwt_identity()
     new_state = request.json.get("isExecuting", False)
-    change_item_executing(get_jwt_identity(), skin_id, new_state)
-    return jsonify({"skin_id": skin_id, "newState": new_state}), 200
-
+    change_item_executing(user_id, skin_id, new_state)
+    return jsonify({
+        "skin_id": skin_id,
+        "newState": new_state
+    }), 200
 
 @app.route('/api/sell_skin', methods=['POST'])
 @jwt_required()
 def api_sell_skin():
-    data = request.get_json() or {}
+    user_id = get_jwt_identity()
+    data = request.get_json()
     skin_id = data.get("skin_id")
+
     if not skin_id:
         return jsonify({"success": False, "message": "skin_id is required"}), 400
 
-    result = sell_item_from_inventory(get_jwt_identity(), skin_id)
+    result = sell_item_from_inventory(user_id, skin_id)
+
     if result["success"]:
         return jsonify({
             "success": True,
@@ -286,45 +211,76 @@ def api_sell_skin():
             "earned": result["value"]
         }), 200
     else:
-        return jsonify({"success": False, "message": result["reason"]}), 400
+        return jsonify({
+            "success": False,
+            "message": result["reason"]
+        }), 400
 
-
-# ==== Upgrade & Roll Routes ====
 @app.route('/api/rollRate', methods=['GET'])
 @jwt_required()
 def rollRate():
-    args = request.args
-    uid = get_jwt_identity()
-    uwid = args.get('userWeaponID')
-    ewid = args.get('expectedWeaponID')
-    if not uwid or not ewid:
-        return jsonify({"error": "userWeaponID and expectedWeaponID are required"}), 400
-    return jsonify({"rate": upgradeRoomService.rollRate(uid, uwid, ewid)}), 200
+    user_id = get_jwt_identity()
+    userWeaponID = request.args.get('userWeaponID')
+    expectedWeaponID = request.args.get('expectedWeaponID')
 
+    if not userWeaponID or not expectedWeaponID:
+        return jsonify({"error": "userWeaponID and expectedWeaponID are required"}), 400
+
+    rate = upgradeRoomService.rollRate(user_id, userWeaponID, expectedWeaponID)
+    return jsonify({"rate": rate}), 200
 
 @app.route('/api/upgradeSkin', methods=['POST'])
 @jwt_required()
 def upgradeSkin():
-    data = request.get_json() or {}
-    uid = get_jwt_identity()
-    uwid = data.get('userWeaponID')
-    ewid = data.get('expectedWeaponID')
-    sr = data.get('startRange')
-    er = data.get('endRange')
-    if not uwid or not ewid:
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    userWeaponID = data.get('userWeaponID')
+    expectedWeaponID = data.get('expectedWeaponID')
+    startRange = data.get('startRange')
+    endRange = data.get('endRange')
+
+    if not userWeaponID or not expectedWeaponID:
         return jsonify({"error": "userWeaponID and expectedWeaponID are required"}), 400
 
-    success = upgradeRoomService.executeRoll(uid, uwid, ewid, sr, er)
-    return jsonify({"success": success}), (200 if success else 500)
-
+    result = upgradeRoomService.executeRoll(user_id, userWeaponID, expectedWeaponID, startRange, endRange)
+    if result:
+        return jsonify({"success": True}), 200
+    else:
+        return jsonify({"success": False}), 500
 
 @app.route('/api/currentCash', methods=['GET'])
 @jwt_required()
 def getCurrentCash():
-    uid = get_jwt_identity()
-    cash = userController.userService.getCash(uid)
-    return (jsonify({"cash": cash}), 200) if cash is not None else (jsonify({"error": "User not found"}), 404)
+    user_id = get_jwt_identity()
+    cash = userController.userService.getCash(user_id)
+    if cash is not None:
+        return jsonify({"cash": cash}), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
 
+
+# Security Configuration
+
+
+request_logger = requestLoggerInterface()
+
+@app.before_request
+def check_request():
+    ip = request.remote_addr
+    try:
+        user_id = get_jwt_identity()
+    except Exception:
+        user_id = None
+    if not request_logger.check_abnormal_request(ip, user_id, request.url):
+        return jsonify({'error': 'Too many requests'}), 429
+
+
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blocklist(jwt_header, jwt_payload):
+    jti = jwt_payload['jti']
+    db = DatabaseInterface
+    token_in_blocklist = db.checkIfBlacklisted(jti)
+    return token_in_blocklist
 
 if __name__ == '__main__':
-    app.run(ssl_context=('ca_certs/localhost+2.pem', 'ca_certs/localhost+2-key.pem'))
+    app.run(ssl_context=('ca_certs/cert.pem', 'ca_certs/key.pem'))
