@@ -195,7 +195,7 @@ class DatabaseInterface:
         cursor = connection.cursor()
 
         #Count how many times this exact IP + user + URL + geo_location has been called in last minute
-        cursor.execute("""SELECT COUNT(*) AS cnt FROM request_logs WHERE ip = ? AND user_id = ? AND request_url = ? AND geo_location = ? AND created_at >= ?""", (ip, user_id, request_url, geo_location_str, one_minute_ago))
+        cursor.execute("""SELECT COUNT(*) AS cnt FROM request_logs WHERE ip_address = ? AND user_id = ? AND request_url = ? AND geo_location = ? AND created_at >= ?""", (ip, user_id, request_url, geo_location_str, one_minute_ago))
         row = cursor.fetchone()
         same_hit_count = row["cnt"] if row else 0
 

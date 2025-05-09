@@ -6,3 +6,5 @@ CREATE TABLE user (
     LUCKY_SEED VARCHAR(255),
     cash DECIMAL(10, 2) DEFAULT 0
 );
+
+SELECT * FROM user;
