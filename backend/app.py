@@ -29,6 +29,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
 # Use CORS temporary for development
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
+CORS(app, origins=["https:scamclub.creammjnk.uk"], supports_credentials=True)
 
 # JWT configurations
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
@@ -272,8 +273,9 @@ def check_request():
         user_id = get_jwt_identity()
     except Exception:
         user_id = None
-    # if not request_logger.check_abnormal_request(ip, user_id, request.url):
-    #     return jsonify({'error': 'Too many requests'}), 429
+
+    if request_logger.check_abnormal_request(ip, user_id, request.url):
+        return jsonify({'error': 'Too many requests'}), 429
 
 
 @jwt.token_in_blocklist_loader
@@ -284,4 +286,4 @@ def check_if_token_in_blocklist(jwt_header, jwt_payload):
     return token_in_blocklist
 
 if __name__ == '__main__':
-    app.run(ssl_context=('ca_certs/localhost+2.pem', 'ca_certs/localhost+2-key.pem'))
+    app.run(ssl_context=('scamclubbe.creammjnk.uk.pem', 'scamclubbe.creammjnk.uk-key.pem'))
