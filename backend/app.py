@@ -1,5 +1,7 @@
 # Importing required libraries and modules
 from flask import Flask, request, jsonify
+from dotenv import load_dotenv
+import os
 from flask_mail import Mail
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies, get_jwt
@@ -26,6 +28,16 @@ app.otp_service = otp_service
 
 # Middleware to handle reverse proxy headers
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+
+# Load environment variables
+load_dotenv()
+ssl_context_str = os.getenv("SSL_CONTEXT")
+if ssl_context_str:
+    context = eval(ssl_context_str)
+else:
+    context = None
+
+app.config["SSL_CONTEXT"] = context
 
 # Use CORS temporary for development
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
@@ -286,4 +298,4 @@ def check_if_token_in_blocklist(jwt_header, jwt_payload):
     return token_in_blocklist
 
 if __name__ == '__main__':
-    app.run(ssl_context=('scamclubbe.creammjnk.uk.pem', 'scamclubbe.creammjnk.uk-key.pem'))
+    app.run(ssl_context=context)
