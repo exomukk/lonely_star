@@ -133,7 +133,7 @@ class DatabaseInterface:
         connection = sqlite3.connect('database.db')
         connection.row_factory = sqlite3.Row
         cursor = connection.cursor()
-        cursor.execute("SELECT id, password, name, username, lucky_seed, cash FROM user WHERE username = ?",(username,))
+        cursor.execute("SELECT id, password, name, username, lucky_seed FROM user WHERE username = ?",(username,))
         result = cursor.fetchone()
         cursor.close()
         connection.close()
@@ -158,7 +158,7 @@ class DatabaseInterface:
                     return False
                 hashed_password = bcrypt_service.hash_password(userInfo.password)
                 cursor.execute(
-                    "INSERT INTO user (id, name, username, password, lucky_seed, cash) VALUES (?, ?, ?, ?, ?, 0.00)",
+                    "INSERT INTO user (id, name, username, password, lucky_seed) VALUES (?, ?, ?, ?, ?)",
                     (userInfo.id, userInfo.name, userInfo.username, hashed_password, userInfo.lucky_seed))
                 connection.commit()
                 cursor.close()

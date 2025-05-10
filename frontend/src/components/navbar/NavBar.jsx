@@ -9,7 +9,7 @@ const Navbar = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch('http://scamclubbe.creammjnk.uk/me', {
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/me`, {
           method: 'GET',
           credentials: 'include',  // Gửi cookie kèm theo request
         });
@@ -32,6 +32,7 @@ const Navbar = () => {
   
         if (data.status === 'success' && data.username) {
           setUser(data.username);
+          console.log(data.username)
         } else {
           setUser(null);
         }
@@ -49,7 +50,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://scamclubbe.creammjnk.uk/logout', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/logout`, {
         method: 'POST',
         credentials: 'include',  // Gửi cookie kèm theo request
       });

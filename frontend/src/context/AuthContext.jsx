@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
     // Hàm checkLogin gọi /me
     const checkLogin = async () => {
         try {
-            const response = await fetch("http://scamclubbe.creammjnk.uk/me", {
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/me`, {
                 method: "GET",
                 credentials: "include",
             });

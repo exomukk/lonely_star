@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 import os
 from flask_mail import Mail
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies, get_jwt
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies, get_jwt, \
+    create_access_token
 from flask_jwt_extended import set_access_cookies
 from upgradeSkin.upgradeService import upgradeRoomService
 from datetime import timedelta
@@ -80,28 +81,46 @@ def entrypoint():
 @jwt_required()
 def me():
     current_user = get_jwt_identity()
+    print('[DEBUG] me: ', current_user)
     return jsonify({
         'status': 'success',
         'username': current_user,
     }), 200
 
 @app.route('/register', methods=['POST'])
-#check ip
+# check ip
 def register():
     data = request.get_json(silent=True) or {}
-    result = userController.register(data)
-    print("[REGISTER] result:", result)
-    email = data.get('username').strip().lower()
-    otp_code = otp_service.generate_otp()
-    otp_service.store_otp(email, otp_code)
-    print("[REGISTER] otp_store sau khi store:", otp_service.otp_store)
 
-    try:
-        otp_service.send_otp_mail(email, otp_code)
-        print(f"OTP {otp_code} sent to {email}")
-    except Exception as e:
-        print(f"Failed to send OTP to {email}: {e}")
-    return jsonify(userController.register(data))
+    result, access_token = userController.register(data)
+    print(result, " ", access_token)
+    print("[REGISTER] result:", result)
+
+    if result.get('status') == 'success':
+    # if result.get('status') == 'error':
+        # For debug
+        email = data.get('username').strip().lower()
+        otp_code = otp_service.generate_otp()
+        otp_service.store_otp(email, otp_code)
+        print("[REGISTER] otp_store sau khi store:", otp_service.otp_store)
+
+        try:
+            otp_service.send_otp_mail(email, otp_code)
+            print(f"OTP {otp_code} sent to {email}")
+            result["otp_sent"] = True
+        except Exception as e:
+            print(f"Failed to send OTP to {email}: {e}")
+            result["otp_sent"] = False
+
+        # Trả về response có set JWT cookie
+        response = jsonify(result)
+        print('[REGISTER] response:', response)
+        if access_token:
+            set_access_cookies(response, access_token)
+        return response
+
+    return jsonify(result)
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -113,6 +132,7 @@ def login():
     return json_output
 
 @app.route('/logout', methods=['POST'])
+@jwt_required()
 def logout():
     DatabaseInterface.addToBlacklist(get_jwt()['jti'])
     response = jsonify({'status': 'success', 'message': 'Đăng xuất thành công'})
@@ -286,8 +306,8 @@ def check_request():
     except Exception:
         user_id = None
 
-    if request_logger.check_abnormal_request(ip, user_id, request.url):
-        return jsonify({'error': 'Too many requests'}), 429
+    # if request_logger.check_abnormal_request(ip, user_id, request.url):
+    #     return jsonify({'error': 'Too many requests'}), 429
 
 
 @jwt.token_in_blocklist_loader

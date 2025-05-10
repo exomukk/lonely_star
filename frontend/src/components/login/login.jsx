@@ -33,7 +33,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://scamclubbe.creammjnk.uk/login', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
