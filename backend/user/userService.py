@@ -21,10 +21,13 @@ class userService():
                 if self.database.insertingUser(user_temp):
                     return True
                 else:
+                    print("invalid username")
                     return False
             else:
+                print("Invalid email")
                 return False
         else:
+            print("Invalid password")
             return False
 
     def getLuckySeedByID(self, id):

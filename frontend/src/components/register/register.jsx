@@ -21,8 +21,9 @@ const Register = () => {
     e.preventDefault();
     setError(''); setSuccess('');
 
+    console.log(`Register: ${process.env.REACT_APP_API_BASE_URL}/register`)
     try {
-      const res = await fetch('https://127.0.0.1:5000/register', {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

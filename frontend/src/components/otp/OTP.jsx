@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './OTP.css';
 
 const OTP = ({ email, onVerifySuccess, onClose }) => {
     const [otp, setOtp] = useState('');
@@ -27,8 +28,9 @@ const OTP = ({ email, onVerifySuccess, onClose }) => {
     };
 
     const handleVerify = async () => {
+        console.log(`${process.env.REACT_APP_REACT_APP_API_BASE_URL}/otp/verify-otp`)
         try {
-            const res = await fetch('https://127.0.0.1:5000/otp/verify-otp', {
+            const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/otp/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, code: otp })
