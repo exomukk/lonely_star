@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 import os
 from flask_mail import Mail
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies, get_jwt, \
-    create_access_token
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies, get_jwt
+from database.sql.dbInterface import DatabaseInterface
 from flask_jwt_extended import set_access_cookies
 from upgradeSkin.upgradeService import upgradeRoomService
 from datetime import timedelta
@@ -23,6 +23,8 @@ from chest.chest_service import get_all_chests, get_chest_by_id, random_rarity
 from inventory.inventory_service import (get_inventory,add_item_to_inventory,check_item_executing,change_item_executing)
 from otp.otp_service import otp_service
 gun_service = GunService()
+from server_performance.server_performance_interface import server_performance_interface
+server_performance = server_performance_interface()
 app = Flask(__name__)
 
 app.otp_service = otp_service
@@ -33,21 +35,31 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 # Load environment variables
 load_dotenv()
 ssl_context_str = os.getenv("SSL_CONTEXT")
+admin_account = str(os.getenv("ADMIN_ACCOUNT"))
+admin_password = str(os.getenv("ADMIN_PASSWORD"))
+
+
+# Set up SSL context
 if ssl_context_str:
     context = eval(ssl_context_str)
 else:
     context = None
-
 app.config["SSL_CONTEXT"] = context
+
+# Setup admin account
+databaseInterface = DatabaseInterface
+if admin_account and admin_password:
+    created = databaseInterface.createAdminAccount(admin_account, admin_password)
+else:
+    print("Missing ADMIN_ACCOUNT or ADMIN_PASSWORD environment variable.")
 
 # Use CORS temporary for development
 CORS(app, origins=["http://localhost:3000","https://scamclub.creammjnk.uk"], supports_credentials=True)
 
 # JWT configurations
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
-app.config['SECRET_KEY'] = randomTool.pseudo_random()
-app.config["JWT_SECRET_KEY"] = randomTool.pseudo_random()
-app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+app.config['JWT_TOKEN_LOCATION'] = ['headers','cookies']
 app.config['JWT_COOKIE_SECURE'] = True
 app.config['JWT_COOKIE_SAMESITE'] = 'None'
 app.config['JWT_COOKIE_CSRF_PROTECT'] = True
@@ -87,10 +99,17 @@ def me():
     }), 200
 
 @app.route('/check', methods=['GET'])
+@jwt_required()
 def check():
+    claims = get_jwt()
+    print(claims.get("role"))
+    if claims.get("role") != "admin":
+        return jsonify({"error": "Access forbidden: Admins only"}), 403
     return jsonify({
         'status': 'success',
-        'message': 'Server is running properly'
+        'message': 'Server is running properly',
+        'CPU Usage': server_performance.get_cpu_usage(),
+        'Memory Usage': server_performance.get_memory_usage()
     }), 200
 
 @app.route('/register', methods=['POST'])
@@ -330,4 +349,4 @@ def check_if_token_in_blocklist(jwt_header, jwt_payload):
     return token_in_blocklist
 
 if __name__ == '__main__':
-    app.run(ssl_context=context)
+    app.run(ssl_context=context,debug=True)

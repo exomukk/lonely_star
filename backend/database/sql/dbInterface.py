@@ -1,13 +1,13 @@
 import sqlite3
 import time
 import json
+import uuid
 from datetime import datetime,timedelta
 from Geocoder.geocoderInterface import geocoderInterface
 from bcryptService.bcryptService import BcryptService
 from user.user import User
 from injector import singleton
 
-from user import user
 
 @singleton
 class DatabaseInterface:
@@ -21,7 +21,7 @@ class DatabaseInterface:
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user'")
         table_exists = self.cursor.fetchone() is not None
         if not table_exists:
-            with open(r'user\userTable.sql', 'r') as file:
+            with open('user/userTable.sql', 'r') as file:
                 sql_script = file.read()
                 self.cursor.executescript(sql_script)
                 self.connection.commit()
@@ -42,13 +42,6 @@ class DatabaseInterface:
                 self.cursor.executescript(sql_script)
                 self.connection.commit()
 
-        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='upgraderoom'")
-        blacklist_table_exists = self.cursor.fetchone() is not None
-        if not blacklist_table_exists:
-            with open('upgradeSkin/upgradeRecord.sql', 'r') as file:
-                sql_script = file.read()
-                self.cursor.executescript(sql_script)
-                self.connection.commit()
 
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='request_logs'")
         blacklist_table_exists = self.cursor.fetchone() is not None
@@ -246,3 +239,33 @@ class DatabaseInterface:
         if result is None:
             return None
         return result["id"]
+
+    def createAdminAccount(self, username, password):
+        print("Admin account creation called")
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM user WHERE username = ?", (username,))
+        result = cursor.fetchone()
+        if result is not None:
+            return False
+        bcrypt_service = BcryptService()
+        hashed_password = bcrypt_service.hash_password(password)
+        id = (str(uuid.uuid4()))
+        cursor.execute("INSERT INTO user (id,name, username, password,role) VALUES (?,?, ?, ?,?)", (id,"admin", username, hashed_password,'admin'))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        print("Admin account created successfully.")
+        return True
+
+    def getUserRole(self, user_id):
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT role FROM user WHERE id = ?",
+            (user_id,)
+        )
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return row[0] if row else None
