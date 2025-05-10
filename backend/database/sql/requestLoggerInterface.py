@@ -1,6 +1,7 @@
 import json
 from database.sql.dbInterface import DatabaseInterface
 from Geocoder.geocoderInterface import geocoderInterface
+
 class requestLoggerInterface:
     def __init__(self):
         self.databaseInterface = DatabaseInterface()
@@ -11,11 +12,10 @@ class requestLoggerInterface:
             geo_location = self.geocoderInterface.get_location_from_ip(ip)
             geo_location_str = json.dumps(geo_location)
             city = self.geocoderInterface.get_city_from_ip(ip)
-            self.add_request_log(ip, user_id, request_url,geo_location_str, city)
-            return False
-        else:
+            self.add_request_log(user_id, request_url, ip, geo_location_str, city)
             return True
+        else:
+            return False
 
-    def add_request_log(self, user_id,request_url,ip_address,geo_location,city):
-        self.databaseInterface.add_request_log(user_id,request_url,ip_address,geo_location,city)
-        pass
+    def add_request_log(self, user_id, request_url, ip_address, geo_location, city):
+        self.databaseInterface.add_request_log(user_id, request_url, ip_address, geo_location, city)
