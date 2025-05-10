@@ -26,10 +26,10 @@ const Navbar = () => {
           setUser(null);
           return;
         }
-  
+
         // Chuyển response thành JSON và log kết quả
         const data = await response.json();
-  
+
         if (data.status === 'success' && data.username) {
           setUser(data.username);
           console.log(data.username)
@@ -40,19 +40,29 @@ const Navbar = () => {
         setUser(null);
       }
     };
-  
+
     fetchUser();
-  }, []);  
+  }, []);
 
   const handleUserClick = () => {
     setShowDropdown(!showDropdown);
   };
 
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+  }
+
   const handleLogout = async () => {
+    const csrfToken = getCookie('csrf_access_token'); // Lấy CSRF token từ cookie
     try {
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/logout`, {
         method: 'POST',
         credentials: 'include',  // Gửi cookie kèm theo request
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken, // Gửi CSRF token trong header
+        },
       });
       const result = await response.json();
       console.log('Logout response:', result);
@@ -62,7 +72,7 @@ const Navbar = () => {
       // Sau khi logout (dù có lỗi hay không), xoá thông tin user ở client
       setUser(null);
       setShowDropdown(false);
-      window.location.href = '/';
+      // window.location.href = '/';
     }
   };
 

@@ -19,9 +19,10 @@ class userController:
         password = input_loaded['password']
         user_id = self.userService.login(username, password)
         role = self.databaseInterface.getUserRole(user_id)
+        name = self.userService.get_username_by_id(user_id)
         print("role"+role)
         if user_id:
-            access_token = create_access_token(identity=user_id, expires_delta=timedelta(hours=1),additional_claims={"role": role})
+            access_token = create_access_token(identity=user_id, expires_delta=timedelta(hours=1),additional_claims={"role": role, "name": name})
             print(f"[LOGIN] ID: {user_id} | Username: {username} | JWT Token: {access_token}")
             return {'status': 'success'}, access_token
         else:

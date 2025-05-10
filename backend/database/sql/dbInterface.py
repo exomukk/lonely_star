@@ -57,7 +57,8 @@ class DatabaseInterface:
     def addToBlacklist(self,jwt):
         connection = sqlite3.connect('database.db')
         cursor = connection.cursor()
-        cursor.execute("INSERT INTO blacklist (jwt) VALUES (?)", (jwt,))
+        # cursor.execute("INSERT INTO blacklist (jwt) VALUES (?)", (jwt,))
+        cursor.execute("INSERT INTO blacklist VALUES (?)", (jwt,))
         connection.commit()
         cursor.close()
         connection.close()
@@ -269,3 +270,15 @@ class DatabaseInterface:
         cursor.close()
         conn.close()
         return row[0] if row else None
+
+    def get_username_by_id(self, user_id):
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT name FROM user WHERE id = ?", (user_id,))
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        if result is not None:
+            return result[0]
+        else:
+            return None

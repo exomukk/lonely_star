@@ -60,3 +60,6 @@ class userService():
     def check_email(self, email):
         regex = r"^[\w\.-]+@[\w\.-]+\.\w+$"
         return re.match(regex, email) is not None
+
+    def get_username_by_id(self, user_id):
+        return self.database.get_username_by_id(user_id)

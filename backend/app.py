@@ -1,4 +1,5 @@
 # Importing required libraries and modules
+from random import random
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
@@ -62,7 +63,9 @@ app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 app.config['JWT_TOKEN_LOCATION'] = ['headers','cookies']
 app.config['JWT_COOKIE_SECURE'] = True
 app.config['JWT_COOKIE_SAMESITE'] = 'None'
-app.config['JWT_COOKIE_CSRF_PROTECT'] = True
+app.config['JWT_COOKIE_CSRF_PROTECT'] = False # Không fix được khi logout :(
+app.config['JWT_ACCESS_COOKIE_PATH'] = '/'
+app.config['JWT_REFRESH_COOKIE_PATH'] = '/'
 jwt = JWTManager(app)
 
 
@@ -92,10 +95,13 @@ def entrypoint():
 @jwt_required()
 def me():
     current_user = get_jwt_identity()
+    claims = get_jwt()
+    user_name = claims.get("name")
+    print('[DEBUG] me: ', user_name)
     print('[DEBUG] me: ', current_user)
     return jsonify({
         'status': 'success',
-        'username': current_user,
+        'username': user_name,
     }), 200
 
 @app.route('/check', methods=['GET'])
@@ -159,6 +165,7 @@ def login():
 @app.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
+    print("[LOGOUT] JWT): ", get_jwt()['jti'])
     DatabaseInterface.addToBlacklist(get_jwt()['jti'])
     response = jsonify({'status': 'success', 'message': 'Đăng xuất thành công'})
     unset_jwt_cookies(response)
@@ -195,28 +202,46 @@ def api_get_chests():
         chest['_id'] = str(chest['_id'])
     return jsonify(chests), 200
 
-@app.route('/api/open_chest', methods=['POST'])
+@app.route('/api/open_chest/<chest_id>', methods=['POST'])
 @jwt_required()
-def api_open_chest():
-    data = request.get_json()
-    chest_id = data.get('chest_id')
-    if not chest_id:
-        return jsonify({'error': 'chest_id is required'}), 400
+def api_open_chest(chest_id):
+    user_id = get_jwt_identity()
 
     chest_info = get_chest_by_id(chest_id)
     if not chest_info:
         return jsonify({'error': 'Chest not found'}), 404
 
-    selected_rarity = random_rarity(chest_info)
+    current_cash = userController.userService.getCash(user_id)
+    if current_cash is None:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Free chest
+    if chest_info.get("reward_type") == "money":
+        reward_values = chest_info.get("reward_values", [5])
+        reward = random.choice(reward_values)
+        userController.userService.addCash(user_id, reward)
+        return jsonify({
+            "message": "Free cash chest opened!",
+            "reward": f"${reward}",
+            "new_balance": current_cash + reward
+        }), 200
+
+    # Chest
+    if current_cash < chest_info.price:
+        return jsonify({'error': 'Not enough cash to open this chest'}), 400
+
+    userController.userService.addCash(user_id, -chest_info.price)
+
+    selected_rarity = random_rarity(chest_info, user_id)
     skin = gun_service.get_skin_by_rarity(selected_rarity)
 
-    user_id = get_jwt_identity()
     add_item_to_inventory(user_id, skin['id'], chest_id)
 
     return jsonify({
         'message': 'Chest opened successfully',
         'skin': skin,
-        'rarity': selected_rarity
+        'rarity': selected_rarity,
+        'new_balance': current_cash - chest_info.price
     }), 200
 
 # Inventory Routes
