@@ -41,8 +41,7 @@ else:
 app.config["SSL_CONTEXT"] = context
 
 # Use CORS temporary for development
-CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
-CORS(app, origins=["https:scamclub.creammjnk.uk"], supports_credentials=True)
+CORS(app, origins=["http://localhost:3000","https://scamclub.creammjnk.uk"], supports_credentials=True)
 
 # JWT configurations
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
@@ -85,6 +84,13 @@ def me():
     return jsonify({
         'status': 'success',
         'username': current_user,
+    }), 200
+
+@app.route('/check', methods=['GET'])
+def check():
+    return jsonify({
+        'status': 'success',
+        'message': 'Server is running properly'
     }), 200
 
 @app.route('/register', methods=['POST'])
@@ -306,9 +312,15 @@ def check_request():
     except Exception:
         user_id = None
 
-    # if request_logger.check_abnormal_request(ip, user_id, request.url):
-    #     return jsonify({'error': 'Too many requests'}), 429
+    if request_logger.check_abnormal_request(ip, user_id, request.url):
+        return jsonify({'error': 'Too many requests'}), 429
 
+@app.after_request
+def strip_server_header(response):
+    response.headers.pop('Server', None)
+    response.headers.pop('X-Powered-By', None)
+    response.headers.pop('X-AspNet-Version', None)
+    return response
 
 @jwt.token_in_blocklist_loader
 def check_if_token_in_blocklist(jwt_header, jwt_payload):
