@@ -20,8 +20,9 @@ from chest.chest_service import get_all_chests, get_chest_by_id, random_rarity
 from inventory.inventory_service import (get_inventory,add_item_to_inventory,check_item_executing,change_item_executing)
 from otp.otp_service import otp_service
 gun_service = GunService()
-otp_service = otp_service()
 app = Flask(__name__)
+
+app.otp_service = otp_service
 
 # Middleware to handle reverse proxy headers
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
@@ -35,7 +36,7 @@ app.config['SECRET_KEY'] = randomTool.pseudo_random()
 app.config["JWT_SECRET_KEY"] = randomTool.pseudo_random()
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config['JWT_COOKIE_SECURE'] = True
-app.config['JWT_COOKIE_SAMESITE'] = 'Lax'
+app.config['JWT_COOKIE_SAMESITE'] = 'None'
 app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 jwt = JWTManager(app)
 
@@ -75,19 +76,18 @@ def me():
 #check ip
 def register():
     data = request.get_json(silent=True) or {}
-    # nếu muốn dùng IP: userController.register(data, g.client_ip)
-    # gọi controller để tạo user
     result = userController.register(data)
-    email = data.get('username')
+    print("[REGISTER] result:", result)
+    email = data.get('username').strip().lower()
     otp_code = otp_service.generate_otp()
     otp_service.store_otp(email, otp_code)
+    print("[REGISTER] otp_store sau khi store:", otp_service.otp_store)
+
     try:
         otp_service.send_otp_mail(email, otp_code)
         print(f"OTP {otp_code} sent to {email}")
     except Exception as e:
         print(f"Failed to send OTP to {email}: {e}")
-        # tuỳ chọn: trả về error nếu cần
-        # return jsonify({'status':'error','message':'Không gửi được OTP'}), 500
     return jsonify(userController.register(data))
 
 @app.route('/login', methods=['POST'])
@@ -272,8 +272,8 @@ def check_request():
         user_id = get_jwt_identity()
     except Exception:
         user_id = None
-    if not request_logger.check_abnormal_request(ip, user_id, request.url):
-        return jsonify({'error': 'Too many requests'}), 429
+    # if not request_logger.check_abnormal_request(ip, user_id, request.url):
+    #     return jsonify({'error': 'Too many requests'}), 429
 
 
 @jwt.token_in_blocklist_loader

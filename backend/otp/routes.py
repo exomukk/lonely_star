@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify
 from otp.otp_service import otp_service
 
 otp_bp = Blueprint('otp', __name__, url_prefix='/otp')
-otp_service = otp_service()
+# otp_service = otp_service()
 @otp_bp.route('/resend-otp', methods=['POST'])
 def resend():
     data = request.get_json() or {}
@@ -22,8 +22,12 @@ def resend():
 @otp_bp.route('/verify-otp', methods=['POST'])
 def verify():
     data = request.get_json() or {}
-    email = data.get('email')
-    code  = data.get('otp')
+    print("[VERIFY] payload:", data)
+    print("[VERIFY] otp_store hiện tại:", otp_service.otp_store)
+
+    email = data.get('email', '').strip().lower()
+    code = data.get('code')  # phải khớp với key bạn gửi từ frontend
+
     ok, msg = otp_service.verify_otp(email, code)
     if ok:
         return jsonify({"message": "Xác thực thành công"}), 200
