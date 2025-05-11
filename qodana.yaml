@@ -1,6 +1,24 @@
 version: "1.0"
-linter: jetbrains/qodana-python:2025.1
-profile:
-  name: qodana.recommended
+
+# Tell Qodana which linters to invoke
+linters:
+  - jetbrains/qodana-python:2025.1
+  - jetbrains/qodana-js:2025.1
+
+# Use the default “recommended” profiles for each
+profiles:
+  - name: qodana.recommended     # Python
+  - name: qodana.js-recommended  # JavaScript/TypeScript
+
+# Which files to scan
 include:
-  - name: CheckDependencyLicenses
+  - "**/*.py"
+  - "**/*.js"
+  - "**/*.jsx"
+  - "**/*.ts"
+  - "**/*.tsx"
+
+# Skip your node_modules/build output
+exclude:
+  - "frontend/node_modules/**"
+  - "frontend/build/**"
