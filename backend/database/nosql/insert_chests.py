@@ -4,7 +4,7 @@ chests = [
     {
         "_id": "1",
         "name": "Common Chest",
-        "price": -5,
+        "price": 5,
         "rarity_distribution": {
             "common": 70,
             "rare": 25,
@@ -14,7 +14,7 @@ chests = [
     {
         "_id": "2",
         "name": "Rare Chest",
-        "price": -10,
+        "price": 10,
         "rarity_distribution": {
             "common": 40,
             "rare": 40,
@@ -25,7 +25,7 @@ chests = [
     {
         "_id": "3",
         "name": "Epic Chest",
-        "price": -20,
+        "price": 20,
         "rarity_distribution": {
             "common": 10,
             "rare": 30,
@@ -37,7 +37,7 @@ chests = [
     {
         "_id": "4",
         "name": "Legendary Chest",
-        "price": -50,
+        "price": 50,
         "rarity_distribution": {
             "common": 5,
             "rare": 20,
@@ -49,7 +49,7 @@ chests = [
     {
         "_id": "5",
         "name": "Mythic Chest",
-        "price": -100,
+        "price": 100,
         "rarity_distribution": {
             "rare": 40,
             "epic": 30,
@@ -61,7 +61,7 @@ chests = [
         "_id": "0",
         "name": "Free Cash Chest",
         "price": 0,
-        "reward_values": [0, 0, 0, 0, 10]
+        "reward_values": [0, 0, 10, 20, 100]
     }
 ]
 
