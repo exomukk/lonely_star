@@ -1,24 +1,20 @@
 version: "1.0"
 
-# Tell Qodana which linters to invoke
 linters:
   - jetbrains/qodana-python:2025.1
   - jetbrains/qodana-js:2025.1
 
-# Use the default “recommended” profiles for each
 profiles:
-  - name: qodana.recommended     # Python
-  - name: qodana.js-recommended  # JavaScript/TypeScript
+  - name: qodana.recommended      # for Python
+  - name: qodana.js-recommended   # for JS/TS
 
-# Which files to scan
-include:
-  - "**/*.py"
-  - "**/*.js"
-  - "**/*.jsx"
-  - "**/*.ts"
-  - "**/*.tsx"
-
-# Skip your node_modules/build output
-exclude:
-  - "frontend/node_modules/**"
-  - "frontend/build/**"
+filters:
+  include:
+    - path: "**/*.py"
+    - path: "**/*.js"
+    - path: "**/*.jsx"
+    - path: "**/*.ts"
+    - path: "**/*.tsx"
+  exclude:
+    - path: "frontend/node_modules/**"
+    - path: "frontend/build/**"
