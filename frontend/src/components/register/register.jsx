@@ -30,7 +30,7 @@ const Register = () => {
       });
       const data = await res.json();
 
-      if (res.ok) {
+      if (data.status === 'success') {
         setSuccess('Đăng ký thành công! Vui lòng nhập mã OTP để kích hoạt.');
         setRegisteredEmail(formData.username);
         // Mở popup OTP

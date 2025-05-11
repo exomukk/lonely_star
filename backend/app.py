@@ -138,6 +138,7 @@ def register():
     print("[REGISTER] result:", result)
 
     if result.get('status') == 'success':
+
     # if result.get('status') == 'error':
         # For debug
         email = data.get('username').strip().lower()

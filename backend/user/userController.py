@@ -45,7 +45,7 @@ class userController:
                 print(f"[REGISTER] ID: {name} | Username: {username} | JWT Token: {access_token}")
                 return {'status': 'success'}, access_token
             else:
-                return {'status': 'error', 'message': 'User already exists'}, None
+                return {'status': 'error', 'message': 'Create user failed'}, None
 
         except Exception as e:
             print("[REGISTER] Exception:", e)
