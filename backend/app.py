@@ -6,7 +6,7 @@ import os
 from flask_mail import Mail
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies, get_jwt
-from database.sql.dbInterface import DatabaseInterface
+# from database.sql.dbInterface import DatabaseInterface
 from flask_jwt_extended import set_access_cookies
 from upgradeSkin.upgradeService import upgradeRoomService as upgradeService
 upgradeService = upgradeService()
