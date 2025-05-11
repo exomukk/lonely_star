@@ -45,7 +45,7 @@ const Register = () => {
 
   const handleOtpSuccess = () => {
     // Nếu xác thực OTP thành công thì chuyển về trang chủ
-    window.location.href = '/';
+    window.location.href = '/login';
   };
 
   return (

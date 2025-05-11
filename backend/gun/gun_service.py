@@ -13,18 +13,13 @@ class GunService:
     def get_by_price_range(self, min_price, max_price):
         return [gun for gun in self.guns if min_price <= gun.price <= max_price]
 
-    def search_by_name_or_price(self, query):
+    def search_by_name(self, query):
+        query_lower = str(query).lower()
         result = []
-        query_lower = query.lower()
         for gun in self.guns:
             if query_lower in gun.name.lower():
                 result.append(gun)
-            else:
-                try:
-                    if abs(gun.price - float(query)) < 0.01:
-                        result.append(gun)
-                except:
-                    continue
+
         return result
 
     def get_skin_by_rarity(self, rarity):
@@ -34,14 +29,26 @@ class GunService:
         selected_gun = random.choice(filtered_guns)
         return selected_gun.to_dict()
 
+    def get_skins_by_rarity(self, rarity):
+        return [
+            gun.to_dict()
+            for gun in self.guns
+            if hasattr(gun, 'tierlist') and gun.tierlist.lower() == rarity.lower()
+        ]
+
     def get_skin_by_id(self, skin_id):
         for gun in self.guns:
             if gun.id == skin_id:
-                return gun.to_dict()
+                data = gun.to_dict()
+                print("gun data", data)
+                return data
         return None
 
     def get_skin_by_id_object(self,skin_id):
+        print("called")
         for gun in self.guns:
-            if gun.id == skin_id:
+            # print(gun.id, "+", skin_id)
+            if str(gun.id) == str(skin_id):
+                print(gun.id)
                 return gun
         return None

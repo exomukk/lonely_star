@@ -1,110 +1,194 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './luckyWheel.css';
 
-// Hardcode danh sách skin
-const defaultBackpackSkins = [
-    { id: 1, name: 'AK-47 | Redline', img: 'https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvxDLDEm2JS4Mp1mOjG-oLKhF2zowdyN2qhJIPHJlA_MlyGrwK9yO7njJS_uszIynRjuSNw5y6LyR211BBNZ_sv26KzzJfhhA/512fx384f' },
-    { id: 2, name: 'M4A1-S | Hot Rod', img: 'https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvxDLDEm2JS4Mp1mOjG-oLKhF2zowdyN2qhJIPHJlA_MlyGrwK9yO7njJS_uszIynRjuSNw5y6LyR211BBNZ_sv26KzzJfhhA/512fx384f' },
-    { id: 3, name: 'AWP | Asiimov', img: 'https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvxDLDEm2JS4Mp1mOjG-oLKhF2zowdyN2qhJIPHJlA_MlyGrwK9yO7njJS_uszIynRjuSNw5y6LyR211BBNZ_sv26KzzJfhhA/512fx384f' },
-    // ... thêm tuỳ ý
-];
+const MULTIPLIERS = [1.5, 2, 5, 10, 20, 100];
+const API = process.env.REACT_APP_API_BASE_URL;
 
-const defaultUpgradeSkinsMap = {
-    1.5: [
-        { id: 4, name: 'Glock-18 | Moonrise', img: 'https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvxDLDEm2JS4Mp1mOjG-oLKhF2zowdyN2qhJIPHJlA_MlyGrwK9yO7njJS_uszIynRjuSNw5y6LyR211BBNZ_sv26KzzJfhhA/512fx384f' },
-        { id: 5, name: 'P2000 | Fire Elemental', img: 'https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvxDLDEm2JS4Mp1mOjG-oLKhF2zowdyN2qhJIPHJlA_MlyGrwK9yO7njJS_uszIynRjuSNw5y6LyR211BBNZ_sv26KzzJfhhA/512fx384f' },
-    ],
-    2: [
-        { id: 6, name: 'Desert Eagle | Blaze', img: 'https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvxDLDEm2JS4Mp1mOjG-oLKhF2zowdyN2qhJIPHJlA_MlyGrwK9yO7njJS_uszIynRjuSNw5y6LyR211BBNZ_sv26KzzJfhhA/512fx384f' },
-        { id: 7, name: 'USP-S | Kill Confirmed', img: 'https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvxDLDEm2JS4Mp1mOjG-oLKhF2zowdyN2qhJIPHJlA_MlyGrwK9yO7njJS_uszIynRjuSNw5y6LyR211BBNZ_sv26KzzJfhhA/512fx384f' },
-    ],
-    5: [
-        { id: 8, name: 'AK-47 | Vulcan', img: 'https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvxDLDEm2JS4Mp1mOjG-oLKhF2zowdyN2qhJIPHJlA_MlyGrwK9yO7njJS_uszIynRjuSNw5y6LyR211BBNZ_sv26KzzJfhhA/512fx384f' },
-        // ...
-    ],
-    10: [ /* ... */],
-    20: [ /* ... */],
-    100: [ /* ... */],
-};
+export default function HomePage() {
+    const [backpackSearch, setBackpackSearch] = useState('');
+    const [upgradeSearch, setUpgradeSearch] = useState('');
+    // —— Inventory từ backend
+    const [items, setItems] = useState([]);
+    const [selectedBackpackSkin, setSelectedBackpackSkin] = useState(null);
 
-const multiplierMap = {
-    1.5: 270,
-    2: 180,
-    5: 75,
-    10: 30,
-    20: 15,
-    100: 3
-};
+    // —— Upgrade options
+    const [upgradeSkins, setUpgradeSkins] = useState([]);
+    const [selectedUpgradeSkin, setSelectedUpgradeSkin] = useState(null);
 
-function HomePage() {
-    // Vòng quay
-    const [x, setX] = useState(0);
-    const [y, setY] = useState(270);
-    const [difference, setDifference] = useState(270);
+    // —— Wheel state
+    const [x, setX] = useState(0);         // start angle
+    const [difference, setDifference] = useState(270); // sweep angle
+    const [y, setY] = useState(270);       // end angle = x + difference
     const [angle, setAngle] = useState(0);
     const [randomAngle, setRandomAngle] = useState(null);
     const [isSpinning, setIsSpinning] = useState(false);
 
-    // Skin quản lý
-    const [backpackSkins] = useState(defaultBackpackSkins);
-    const [upgradeSkins, setUpgradeSkins] = useState(defaultUpgradeSkinsMap[1.5]);
-    const [backpackSearch, setBackpackSearch] = useState('');
-    const [upgradeSearch, setUpgradeSearch] = useState('');
+    // roll rate
+    const [rate, setRate] = useState(null);
 
-    // Skin được chọn
-    const [selectedBackpackSkin, setSelectedBackpackSkin] = useState(backpackSkins[0]);
-    const [selectedUpgradeSkin, setSelectedUpgradeSkin] = useState(upgradeSkins[0]);
-
-    // Khi chọn hệ số
-    const handleSelectMultiplier = (multiplier) => {
-        const diff = multiplierMap[multiplier];
-        setDifference(diff);
-
-        const list = defaultUpgradeSkinsMap[multiplier];
-        setUpgradeSkins(list);
-        // Reset skin nâng cấp về phần tử đầu
-        setSelectedUpgradeSkin(list[0]);
-
-        if (x + diff <= 360) setY(x + diff);
-        else setY(360);
+    // gọi API rollRate và lưu kết quả vào state hoặc log ra console
+    const rollRateApi = async (upSkin) => {
+        if (!selectedBackpackSkin) {
+            alert('Hãy chọn trước skin trong balo!');
+            return;
+        }
+        const params = new URLSearchParams({
+            userWeaponID: selectedBackpackSkin.skin_id,
+            expectedWeaponID: upSkin.id,
+        });
+        try {
+            const res = await fetch(`${API}/api/rollRate?${params}`, {
+                method: 'GET',
+                credentials: 'include',
+            });
+            const data = await res.json();
+            if (res.ok) {
+                console.log('Tỉ lệ thành công:', data.rate);
+                setRate(data.rate);  // nếu bạn muốn hiển thị hoặc dùng tiếp
+            } else {
+                alert(data.error || 'Không lấy được tỉ lệ');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Lỗi khi gọi rollRate');
+        }
     };
 
-    // Slider thay đổi x
-    const handleSliderChange = (e) => {
-        const newX = +e.target.value;
-        setX(newX);
-        if (newX + difference <= 360) setY(newX + difference);
-        else setY(360);
+    // 1) Load inventory + skin_info
+    useEffect(() => {
+        fetch(`${API}/api/inventory`, { credentials: 'include' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Promise.all(
+                        data.inventory.map(item =>
+                            fetch(`${API}/api/skin/${item.skin_id}`, { credentials: 'include' })
+                                .then(r => r.json())
+                                .then(skin => ({
+                                    skin_id: item.skin_id,
+                                    quantity: item.quantity,
+                                    skin_info: skin
+                                }))
+                        )
+                    ).then(full => setItems(full));
+                }
+            })
+            .catch(console.error);
+    }, []);
+
+    // 2) Chọn multiplier → fetch upgradeSkins theo price_range
+    const handleSelectMultiplier = async m => {
+        if (!selectedBackpackSkin) {
+            alert('Hãy chọn 1 skin trong balo trước!');
+            return;
+        }
+        const price = selectedBackpackSkin.skin_info.price;
+
+        try {
+            const res = await fetch(`${API}/api/gun/price_range`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    base_price: price,
+                    multiplier: m
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.status === 'success') {
+                setUpgradeSkins(data.guns);
+                setSelectedUpgradeSkin(data.guns[0] || null);
+            } else {
+                alert(data.message || 'Không lấy được danh sách nâng cấp');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Lỗi khi gọi price_range');
+        }
     };
 
-    // Quay
-    const handleSpin = () => {
+    // 3) Slider (nếu bạn cần cho wheel preview vùng thắng)
+    const handleSliderChange = e => {
+        const v = +e.target.value;
+        setX(v);
+        setY(v + difference <= 360 ? v + difference : 360);
+    };
+
+    // 4) Quay → gọi rollRate → animate
+    const handleSpin = async () => {
         if (isSpinning) return;
-        const newRandom = Math.floor(Math.random() * 360) + 1;
-        setRandomAngle(newRandom);
-        setAngle((angle % 360) + 1080 + newRandom);
-        setIsSpinning(true);
-    };
+        if (!selectedBackpackSkin || !selectedUpgradeSkin) {
+            alert('Chọn cả 2 skin trước khi quay!');
+            return;
+        }
 
+        try {
+            // 1) Lấy rate để vẽ vùng đỏ
+            const rateRes = await fetch(`${API}/api/rollRate?` + new URLSearchParams({
+                userWeaponID: selectedBackpackSkin.skin_id,
+                expectedWeaponID: selectedUpgradeSkin.id
+            }), { credentials: 'include' });
+            const rateData = await rateRes.json();
+            if (!rateRes.ok) {
+                alert(rateData.error || 'Lỗi rollRate');
+                return;
+            }
+            const sweep = rateData.rate * 3.6;
+            setDifference(sweep);
+            setY(x + sweep <= 360 ? x + sweep : 360);
+
+            // 2) Gọi upgradeSkin để biết win hay lose
+            const upgradeRes = await fetch(`${API}/api/upgradeSkin`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userWeaponID: selectedBackpackSkin.skin_id,
+                    expectedWeaponID: selectedUpgradeSkin.id,
+                    startRange: x,
+                    endRange: x + sweep  // hoặc y
+                })
+            });
+            const { success } = await upgradeRes.json();
+            // success === true ⇒ thắng, ngược lại ⇒ thua
+
+            // 3) Tính góc dừng cố định
+            let fixedAngle;
+            if (success) {
+                // giữa vùng thắng (x → x+sweep)
+                fixedAngle = Math.round(x + sweep / 2) % 360;
+            } else {
+                // giữa vùng thua (x+sweep → x+360)
+                const losingStart = (x + sweep) % 360;
+                const losingSweep = 360 - sweep;
+                fixedAngle = Math.round(losingStart + losingSweep / 2) % 360;
+            }
+            setRandomAngle(fixedAngle);
+
+            // 4) Bắt đầu animation: +1080 độ để kim quay đủ lâu
+            setAngle(prev => (prev % 360) + 1080 + fixedAngle);
+            setIsSpinning(true);
+
+        } catch (err) {
+            console.error(err);
+            alert('Lỗi khi quay');
+        }
+    };
     const handleTransitionEnd = () => {
-        if (!isSpinning) return;
         setIsSpinning(false);
         if (randomAngle !== null) {
-            if (randomAngle >= x && randomAngle <= y) {
-                alert(`Góc ra là ${randomAngle}° - Bạn đã THẮNG!`);
-            } else {
-                alert(`Góc ra là ${randomAngle}° - Bạn đã THUA!`);
-            }
+            const win = randomAngle >= x && randomAngle <= y;
+            alert(`Bạn đã ${win ? 'THẮNG' : 'THUA'}!`);
             window.location.reload();
         }
     };
 
-    // Filter
-    const filteredBackpack = backpackSkins.filter(s =>
-        s.name.toLowerCase().includes(backpackSearch.toLowerCase())
+    // 5) Filter
+    const filteredBackpack = items.filter(item =>
+        item.skin_info.name.toLowerCase().includes(backpackSearch.toLowerCase())
     );
-    const filteredUpgrade = upgradeSkins.filter(s =>
-        s.name.toLowerCase().includes(upgradeSearch.toLowerCase())
+    const filteredUpgrade = upgradeSkins.filter(skin =>
+        skin.name.toLowerCase().includes(upgradeSearch.toLowerCase())
     );
 
     return (
@@ -113,45 +197,58 @@ function HomePage() {
 
             {/* Chọn multiplier */}
             <div className="multiplier-buttons">
-                {Object.keys(multiplierMap).map(m => (
-                    <button
-                        key={m}
-                        onClick={() => handleSelectMultiplier(Number(m))}
-                    >
+                {MULTIPLIERS.map(m => (
+                    <button key={m} onClick={() => handleSelectMultiplier(m)}>
                         x{m}
                     </button>
                 ))}
             </div>
 
-            {/* Slider */}
+            {/* Slider preview vùng thắng */}
             <div className="slider-container">
                 <label>Chọn khoảng bắt đầu:</label>
                 <input
                     type="range"
-                    min="0"
-                    max={360 - difference}
-                    value={x}
-                    onChange={handleSliderChange}
+                    min="0" max={360 - difference}
+                    value={x} onChange={handleSliderChange}
                 />
             </div>
 
-            {/* Hai ô skin nhỏ */}
+            {/* Ô preview */}
             <div className="side-skins">
                 <div className="side-box left">
-                    <img src={selectedBackpackSkin?.img} alt="" />
-                    <p>{selectedBackpackSkin?.name}</p>
+                    {selectedBackpackSkin ? (
+                        <>
+                            <img
+                                src={selectedBackpackSkin.skin_info.image}
+                                alt={selectedBackpackSkin.skin_info.name}
+                            />
+                            <p>{selectedBackpackSkin.skin_info.name}</p>
+                        </>
+                    ) : (
+                        <div className="empty-box" />
+                    )}
                 </div>
                 <div className="side-box right">
-                    <img src={selectedUpgradeSkin?.img} alt="" />
-                    <p>{selectedUpgradeSkin?.name}</p>
+                    {selectedUpgradeSkin ? (
+                        <>
+                            <img
+                                src={selectedUpgradeSkin.image}
+                                alt={selectedUpgradeSkin.name}
+                            />
+                            <p>{selectedUpgradeSkin.name}</p>
+                        </>
+                    ) : (
+                        <div className="empty-box" />
+                    )}
                 </div>
             </div>
 
-            {/* Vòng quay */}
+            {/* Wheel */}
             <div className="wheel-container">
                 <div
                     className="wheel"
-                    style={{ '--start': `${x}deg`, '--end': `${y}deg` }}
+                    style={{ '--start': `${rate !== null ? 0 : x}deg`, '--end': `${rate !== null ? (rate * 3.6).toFixed(2) : y}deg` }}
                 />
                 <div
                     className="pointer"
@@ -159,41 +256,50 @@ function HomePage() {
                     onTransitionEnd={handleTransitionEnd}
                 />
             </div>
-            <button onClick={handleSpin}>Quay</button>
+            <button onClick={handleSpin} disabled={isSpinning}>
+                {isSpinning ? 'Đang quay...' : 'Quay'}
+            </button>
 
-            {/* Hai ô lớn với search */}
+            {rate !== null && <p>Tỉ lệ thành công: {Math.round(rate)}%</p>}
+
+            {/* Skin trong balo */}
             <div className="skins-container">
                 <div className="large-box">
                     <h4>Skin trong balo</h4>
                     <input
                         className="search-input"
-                        type="text"
                         placeholder="Tìm kiếm skin..."
                         value={backpackSearch}
                         onChange={e => setBackpackSearch(e.target.value)}
                     />
                     <div className="skin-list">
-                        {filteredBackpack.map(skin => (
+                        {filteredBackpack.map(item => (
                             <div
-                                key={skin.id}
+                                key={item.skin_id}
                                 className="skin-item"
-                                onClick={() => setSelectedBackpackSkin(skin)}
+                                onClick={() => setSelectedBackpackSkin(item)}
                                 style={{
-                                    border: skin.id === selectedBackpackSkin.id
-                                        ? '2px solid red' : '1px solid #333'
+                                    border: item.skin_id === selectedBackpackSkin?.skin_id
+                                        ? '2px solid red'
+                                        : '1px solid #333'
                                 }}
                             >
-                                <img src={skin.img} alt="" />
-                                <p>{skin.name}</p>
+                                <img
+                                    src={item.skin_info.image}
+                                    alt={item.skin_info.name}
+                                />
+                                <p>{item.skin_info.name}</p>
+                                <small>Số lượng: {item.quantity}</small>
                             </div>
                         ))}
                     </div>
                 </div>
+
+                {/* Skin nâng cấp */}
                 <div className="large-box">
                     <h4>Skin có thể nâng cấp</h4>
                     <input
                         className="search-input"
-                        type="text"
                         placeholder="Tìm kiếm skin..."
                         value={upgradeSearch}
                         onChange={e => setUpgradeSearch(e.target.value)}
@@ -203,13 +309,17 @@ function HomePage() {
                             <div
                                 key={skin.id}
                                 className="skin-item"
-                                onClick={() => setSelectedUpgradeSkin(skin)}
+                                onClick={() => {
+                                    setSelectedUpgradeSkin(skin);
+                                    rollRateApi(skin);
+                                }}
                                 style={{
-                                    border: skin.id === selectedUpgradeSkin.id
-                                        ? '2px solid red' : '1px solid #333'
+                                    border: skin.id === selectedUpgradeSkin?.id
+                                        ? '2px solid red'
+                                        : '1px solid #333'
                                 }}
                             >
-                                <img src={skin.img} alt="" />
+                                <img src={skin.image} alt={skin.name} />
                                 <p>{skin.name}</p>
                             </div>
                         ))}
@@ -219,5 +329,3 @@ function HomePage() {
         </div>
     );
 }
-
-export default HomePage;

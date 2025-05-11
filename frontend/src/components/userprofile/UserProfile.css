@@ -89,37 +89,51 @@
 
 .inventory-grid {
   display: grid;
-  /* 5 cột, mỗi cột rộng ít nhất 130px và co giãn đều */
-  grid-template-columns: repeat(5, 230px);
-  gap: 2rem;                 /* khoảng cách giữa các card */
-  justify-content: center;   /* center cả grid */
-  margin: 2rem auto 3rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  max-width: 1100px;
+  margin: 0 auto;
+  gap: 20px;
+  justify-content: center;
 }
 
-.inventory-item {
-  display: flex;
-  align-items: center;
-  background-color: white;
+.inventory-item-card {
+  border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 1.25rem;
+  padding: 12px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.skin-image {
   width: 100%;
-  /* to hơn */
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+  max-height: 120px;
+  object-fit: contain;
+  border-radius: 4px;
+  margin-bottom: 10px;
 }
 
-.inventory-item img {
-  flex: 0 0 100px;
-  /* ảnh to hơn */
-  width: 100px;
-  height: auto;
-  border-radius: 6px;
-  object-fit: cover;
+.skin-info h4 {
+  font-size: 16px;
+  margin: 0 0 6px 0;
 }
 
-.inventory-item p {
-  margin: 0 0 0 1rem;
-  font-size: 1rem;
-  /* chữ to hơn */
-  color: #333;
-  line-height: 1.2;
+.skin-info p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.sell-button {
+  margin-top: 8px;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.sell-button:hover {
+  background-color: #d9363e;
 }

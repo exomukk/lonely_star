@@ -1,5 +1,5 @@
 # Importing required libraries and modules
-from random import random
+from random import random, choice
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
@@ -8,7 +8,8 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, unset_jwt_cookies, get_jwt
 from database.sql.dbInterface import DatabaseInterface
 from flask_jwt_extended import set_access_cookies
-from upgradeSkin.upgradeService import upgradeRoomService
+from upgradeSkin.upgradeService import upgradeRoomService as upgradeService
+upgradeService = upgradeService()
 from datetime import timedelta
 from database.sql.dbInterface import DatabaseInterface as db
 DatabaseInterface = db()
@@ -104,7 +105,7 @@ def me():
         'username': user_name,
     }), 200
 
-@app.route('/check', methods=['GET'])
+@app.route('/api/check', methods=['GET'])
 @jwt_required()
 def check():
     claims = get_jwt()
@@ -117,6 +118,15 @@ def check():
         'CPU Usage': server_performance.get_cpu_usage(),
         'Memory Usage': server_performance.get_memory_usage()
     }), 200
+
+@app.route('/api/is_admin', methods=['GET'])
+@jwt_required()
+def is_admin():
+    claims = get_jwt()
+    print(claims.get("role"))
+    if claims.get("role") != "admin":
+        return jsonify({"admin": "false"}), 200
+    return jsonify({"admin": "true"}), 200
 
 @app.route('/register', methods=['POST'])
 # check ip
@@ -174,18 +184,41 @@ def logout():
 
 #Gun Routes
 
-@app.route('/api/gun/search', methods=['GET'])
+@app.route('/api/gun/search', methods=['POST'])
 def api_search_gun():
-    query = request.args.get('q', '')
-    result = [g.to_dict() for g in gun_service.search_by_name_or_price(query)]
+    data = request.get_json() or {}
+    query = data.get('q', '')
+    result = [g.to_dict() for g in gun_service.search_by_name(query)]
     return jsonify(result)
 
-@app.route('/api/gun/price_range', methods=['GET'])
-def api_gun_by_price():
-    min_price = float(request.args.get('min', 0))
-    max_price = float(request.args.get('max', 9999))
-    result = [g.to_dict() for g in gun_service.get_by_price_range(min_price, max_price)]
-    return jsonify(result)
+
+@app.route('/api/gun/price_range', methods=['POST'])
+def api_gun_by_price_range():
+    data = request.get_json() or {}
+    print('api_gun_by_price is running: ', data)
+
+    try:
+        base_price = float(data.get('base_price'))
+        multiplier = float(data.get('multiplier'))
+    except (ValueError, TypeError):
+        return jsonify({"status": "error", "message": "Missing or invalid data"}), 400
+
+    target_price = base_price * multiplier
+    delta = target_price * 0.1
+    min_price = round(target_price - delta, 2)
+    max_price = round(target_price + delta, 2)
+
+    print(f"[DEBUG] base={base_price}, multiplier={multiplier}, target={target_price}, range=({min_price}, {max_price})")
+
+    guns = [g.to_dict() for g in gun_service.guns if min_price <= g.price <= max_price]
+
+    return jsonify({
+        "status": "success",
+        "target_price": target_price,
+        "range": [min_price, max_price],
+        "count": len(guns),
+        "guns": guns
+    }), 200
 
 @app.route('/api/gun/<gun_id>', methods=['GET'])
 def api_get_gun_by_id(gun_id):
@@ -194,20 +227,79 @@ def api_get_gun_by_id(gun_id):
         return jsonify(skin)
     return jsonify({'error': 'not found'}), 404
 
+#Temp route for testing
+@app.route('/api/gun/by_id', methods=['POST'])
+def api_get_gun_by_id_post():
+    data = request.get_json() or {}
+    skin_id = data.get("id")
+
+    if skin_id is None:
+        return jsonify({"status": "error", "message": "Missing 'id' in request"}), 400
+
+    skin = gun_service.get_skin_by_id(skin_id)
+    if skin:
+        return jsonify({
+            "status": "success",
+            "skin": skin,
+            "price": skin["price"]
+        }), 200
+    else:
+        return jsonify({
+            "status": "error",
+            "message": f"Skin with id {skin_id} not found"
+        }), 404
+
+@app.route('/api/gun/list_by_rarity', methods=['POST'])
+def api_list_guns_by_rarity():
+    data = request.get_json() or {}
+    rarity = data.get("rarity")
+
+    if not rarity:
+        return jsonify({"status": "error", "message": "Missing 'rarity' in request"}), 400
+
+    filtered_guns = [
+        gun.to_dict() for gun in gun_service.guns
+        if gun.tierlist.lower() == rarity.lower()
+    ]
+
+    if not filtered_guns:
+        return jsonify({
+            "status": "error",
+            "message": f"No guns found with rarity '{rarity}'"
+        }), 404
+
+    return jsonify({
+        "status": "success",
+        "rarity": rarity,
+        "count": len(filtered_guns),
+        "guns": filtered_guns
+    }), 200
+
+
 # Chest Routes
 @app.route('/api/chests', methods=['GET'])
 def api_get_chests():
     chests = get_all_chests()
+    result = []
     for chest in chests:
-        chest['_id'] = str(chest['_id'])
-    return jsonify(chests), 200
+        data = chest.to_dict()
+        data['_id'] = str(data['_id'])  # để đảm bảo JSON hợp lệ
+        result.append(data)
+    return jsonify(result), 200
 
-@app.route('/api/open_chest/<chest_id>', methods=['POST'])
+@app.route('/api/open_chest', methods=['POST'])
 @jwt_required()
-def api_open_chest(chest_id):
+def api_open_chest():
+    data = request.get_json() or {}
+    chest_id = data.get("chest_id")
     user_id = get_jwt_identity()
+    print("data when open chest", data, " ", chest_id, " ", user_id)
+
+    if not chest_id:
+        return jsonify({"error": "Missing chest_id"}), 400
 
     chest_info = get_chest_by_id(chest_id)
+    print("opening chest", chest_info)
     if not chest_info:
         return jsonify({'error': 'Chest not found'}), 404
 
@@ -215,10 +307,10 @@ def api_open_chest(chest_id):
     if current_cash is None:
         return jsonify({'error': 'User not found'}), 404
 
-    # Free chest
-    if chest_info.get("reward_type") == "money":
-        reward_values = chest_info.get("reward_values", [5])
-        reward = random.choice(reward_values)
+    if hasattr(chest_info, "reward_values") and chest_info.reward_values:
+        reward_values = chest_info.reward_values
+        print('[DEBUG] reward_values:', reward_values)
+        reward = choice(reward_values)
         userController.userService.addCash(user_id, reward)
         return jsonify({
             "message": "Free cash chest opened!",
@@ -226,8 +318,7 @@ def api_open_chest(chest_id):
             "new_balance": current_cash + reward
         }), 200
 
-    # Chest
-    if current_cash < chest_info.price:
+    if current_cash < abs(chest_info.price):
         return jsonify({'error': 'Not enough cash to open this chest'}), 400
 
     userController.userService.addCash(user_id, -chest_info.price)
@@ -243,6 +334,39 @@ def api_open_chest(chest_id):
         'rarity': selected_rarity,
         'new_balance': current_cash - chest_info.price
     }), 200
+
+@app.route('/api/chest_info/<chest_id>', methods=['GET'])
+def get_chest_detail(chest_id):
+    chest = get_chest_by_id(chest_id)
+    if not chest:
+        return jsonify({'error': 'Chest not found'}), 404
+
+    if hasattr(chest, 'reward_values') and chest.reward_values:
+        return jsonify({
+            'type': 'cash',
+            'reward_values': chest.reward_values
+        })
+
+    skins = []
+    for rarity, percent in chest.rarity_distribution.items():
+        # Trả về danh sách skin dạng dict
+        rarity_skins = gun_service.get_skins_by_rarity(rarity)
+        print("rarity_skins: ", rarity_skins)
+
+        # Đảm bảo mỗi skin là dict
+        for skin in rarity_skins:
+            if isinstance(skin, dict):
+                skins.append({
+                    'name': skin.get('name', 'Unknown'),
+                    'image': skin.get('image', ''),
+                    'rarity': rarity
+                })
+
+    return jsonify({
+        'type': 'skin',
+        'skins': skins
+    })
+
 
 # Inventory Routes
 @app.route('/api/inventory', methods=['GET'])
@@ -306,11 +430,12 @@ def rollRate():
     user_id = get_jwt_identity()
     userWeaponID = request.args.get('userWeaponID')
     expectedWeaponID = request.args.get('expectedWeaponID')
-
+    print('RollRate DEBUG: ', user_id, " ", userWeaponID, " ", expectedWeaponID)
     if not userWeaponID or not expectedWeaponID:
         return jsonify({"error": "userWeaponID and expectedWeaponID are required"}), 400
 
-    rate = upgradeRoomService.rollRate(user_id, userWeaponID, expectedWeaponID)
+    rate = upgradeService.rollRate(user_id, userWeaponID, expectedWeaponID)
+    print("rate: ", rate)
     return jsonify({"rate": rate}), 200
 
 @app.route('/api/upgradeSkin', methods=['POST'])
@@ -326,11 +451,13 @@ def upgradeSkin():
     if not userWeaponID or not expectedWeaponID:
         return jsonify({"error": "userWeaponID and expectedWeaponID are required"}), 400
 
-    result = upgradeRoomService.executeRoll(user_id, userWeaponID, expectedWeaponID, startRange, endRange)
+    result = upgradeService.executeRoll(user_id, userWeaponID, expectedWeaponID, startRange, endRange)
     if result:
+        print("Win upgrade")
         return jsonify({"success": True}), 200
     else:
-        return jsonify({"success": False}), 500
+        print("Lose upgrade")
+        return jsonify({"success": False}), 200
 
 @app.route('/api/currentCash', methods=['GET'])
 @jwt_required()
@@ -341,6 +468,15 @@ def getCurrentCash():
         return jsonify({"cash": cash}), 200
     else:
         return jsonify({"error": "User not found"}), 404
+
+@app.route('/api/skin/<int:skin_id>', methods=['GET'])
+@jwt_required()
+def get_skin_by_id_route(skin_id):
+    skin_data = gun_service.get_skin_by_id(skin_id)
+    if skin_data:
+        return jsonify(skin_data), 200
+    else:
+        return jsonify({"error": "Skin not found"}), 404
 
 
 # Security Configuration

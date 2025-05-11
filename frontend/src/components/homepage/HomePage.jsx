@@ -13,14 +13,11 @@ const HomePage = () => {
             return;
         }
 
-        if (caseId === 1) {
-            navigate('/opencase/1'); // Trang mở hòm miễn phí
-        } else {
-            navigate(`/opencase/${caseId}`); // Trang mở hòm trả phí
-        }
+        navigate(`/opencase/${caseId}`);
     };
 
     const caseImages = {
+        0: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFQxnaecIT8Wv9rilYTYkfTyNuiFwmhUvpZz3-2Z9oqg0Vew80NvZzuiJdeLMlhpwFO-XdA/360fx360f",
         1: "https://pub-5f12f7508ff04ae5925853dee0438460.r2.dev/data/csgo/resource/flash/econ/weapon_cases/crate_community_32.png",
         2: "https://pub-5f12f7508ff04ae5925853dee0438460.r2.dev/data/csgo/resource/flash/econ/weapon_cases/crate_community_33_png.png",
         3: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFQwnfCcJmxDv9rhwIHZwqP3a-uGwz9Xv8F0j-qQrI3xiVLkrxVuZW-mJoWLMlhpWhFkc9M",
@@ -35,7 +32,7 @@ const HomePage = () => {
             </div>
 
             <div className="cases-grid">
-                {[1, 2, 3, 4, 5].map((caseId) => (
+                {[0, 1, 2, 3, 4, 5].map((caseId) => (
                     <div key={caseId} className="case-item">
                         <img
                             src={caseImages[caseId]}
@@ -46,7 +43,7 @@ const HomePage = () => {
                             className="open-case-button"
                             onClick={() => handleOpenCase(caseId)}
                         >
-                            {caseId === 1 ? 'Mở Hòm Miễn Phí' : 'Mở Hòm'}
+                            {caseId === 0 ? 'Mở Hòm Miễn Phí' : 'Mở Hòm'}
                         </button>
                     </div>
                 ))}

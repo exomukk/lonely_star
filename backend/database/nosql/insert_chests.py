@@ -2,9 +2,9 @@ from database.nosql.mongoInterface import chest_collection
 
 chests = [
     {
-        "_id": "chest_common",
+        "_id": "1",
         "name": "Common Chest",
-        "price": 5,
+        "price": -5,
         "rarity_distribution": {
             "common": 70,
             "rare": 25,
@@ -12,9 +12,9 @@ chests = [
         }
     },
     {
-        "_id": "chest_rare",
+        "_id": "2",
         "name": "Rare Chest",
-        "price": 10,
+        "price": -10,
         "rarity_distribution": {
             "common": 40,
             "rare": 40,
@@ -23,9 +23,9 @@ chests = [
         }
     },
     {
-        "_id": "chest_epic",
+        "_id": "3",
         "name": "Epic Chest",
-        "price": 20,
+        "price": -20,
         "rarity_distribution": {
             "common": 10,
             "rare": 30,
@@ -35,9 +35,9 @@ chests = [
         }
     },
     {
-        "_id": "chest_legendary",
+        "_id": "4",
         "name": "Legendary Chest",
-        "price": 50,
+        "price": -50,
         "rarity_distribution": {
             "common": 5,
             "rare": 20,
@@ -47,19 +47,29 @@ chests = [
         }
     },
     {
-        "_id": "chest_mythic",
+        "_id": "5",
         "name": "Mythic Chest",
-        "price": 100,
+        "price": -100,
         "rarity_distribution": {
             "rare": 40,
             "epic": 30,
             "legendary": 20,
             "mythic": 10
         }
+    },
+    {
+        "_id": "0",
+        "name": "Free Cash Chest",
+        "price": 0,
+        "reward_values": [0, 0, 0, 0, 10]
     }
 ]
 
+# Xoá toàn bộ dữ liệu cũ trước khi insert mới
+chest_collection.delete_many({})
+
 # Insert nhiều hòm một lần
 chest_collection.insert_many(chests)
+
 
 print("Inserted chests successfully!")

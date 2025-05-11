@@ -1,137 +1,116 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './OpenCase.css';
 
-// Đây là list skin (mình fix cứng 10 skin từ JSON của bạn)
-const skins = [
-    {
-        name: "AUG | Anodized Navy",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot6-iFAZu7P3JZyR97s63go-0m_7zO6-fz24Bu5Iji-rFodmm3Qzjr0o-Nz_xddLEdVU7ZA7Q_1W_xbu51JDptYOJlyWB_uSARA/512fx384f"
-    },
-    {
-        name: "AUG | Ricochet",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot6-iFAZt7PLddgJI-dG0mIW0m_7zO6-fkjpX65Um2evA9tX2jQDl80I4ZjqmIYKVJAFoMArV_VjtwL290JK8uoOJlyUdLwiicA/512fx384f"
-    },
-    {
-        name: "AWP | PAW",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAZt7PLfYQJS7cumlZe0m_7zO6-fx2oH7JYkiO-Z9or3jAbtr0VkZmz0IIOdcANsM1jT81a-yefqgZC1v4OJlyUJgMft6w/512fx384f"
-    },
-    {
-        name: "CZ75-Auto | Jungle Dashed",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpotaDyfgZfwOP3ZTxS6eOlnI-Zg8j-JrXWmm5u5Mx2gv2PoNyn2g3lqhFuYW_3d4-WcAE-MAvZ-QK5lLjog8C66smbznU1siVw7GGdwUJAMFqeHA/512fx384f"
-    },
-    {
-        name: "Desert Eagle | Kumicho Dragon",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvxDLDEm2JS4Mp1mOjG-oLKhF2zowdyN2qhJIPHJlA_MlyGrwK9yO7njJS_uszIynRjuSNw5y6LyR211BBNZ_sv26KzzJfhhA/512fx384f"
-    },
-    {
-        name: "AUG | Anodized Navy",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot6-iFAZu7P3JZyR97s63go-0m_7zO6-fz24Bu5Iji-rFodmm3Qzjr0o-Nz_xddLEdVU7ZA7Q_1W_xbu51JDptYOJlyWB_uSARA/512fx384f"
-    },
-    {
-        name: "AUG | Ricochet",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot6-iFAZt7PLddgJI-dG0mIW0m_7zO6-fkjpX65Um2evA9tX2jQDl80I4ZjqmIYKVJAFoMArV_VjtwL290JK8uoOJlyUdLwiicA/512fx384f"
-    },
-    {
-        name: "AWP | PAW",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAZt7PLfYQJS7cumlZe0m_7zO6-fx2oH7JYkiO-Z9or3jAbtr0VkZmz0IIOdcANsM1jT81a-yefqgZC1v4OJlyUJgMft6w/512fx384f"
-    },
-    {
-        name: "CZ75-Auto | Jungle Dashed",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpotaDyfgZfwOP3ZTxS6eOlnI-Zg8j-JrXWmm5u5Mx2gv2PoNyn2g3lqhFuYW_3d4-WcAE-MAvZ-QK5lLjog8C66smbznU1siVw7GGdwUJAMFqeHA/512fx384f"
-    },
-    {
-        name: "Desert Eagle | Kumicho Dragon",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvxDLDEm2JS4Mp1mOjG-oLKhF2zowdyN2qhJIPHJlA_MlyGrwK9yO7njJS_uszIynRjuSNw5y6LyR211BBNZ_sv26KzzJfhhA/512fx384f"
-    },
-    {
-        name: "AUG | Anodized Navy",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot6-iFAZu7P3JZyR97s63go-0m_7zO6-fz24Bu5Iji-rFodmm3Qzjr0o-Nz_xddLEdVU7ZA7Q_1W_xbu51JDptYOJlyWB_uSARA/512fx384f"
-    },
-    {
-        name: "AUG | Ricochet",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot6-iFAZt7PLddgJI-dG0mIW0m_7zO6-fkjpX65Um2evA9tX2jQDl80I4ZjqmIYKVJAFoMArV_VjtwL290JK8uoOJlyUdLwiicA/512fx384f"
-    },
-    {
-        name: "AWP | PAW",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAZt7PLfYQJS7cumlZe0m_7zO6-fx2oH7JYkiO-Z9or3jAbtr0VkZmz0IIOdcANsM1jT81a-yefqgZC1v4OJlyUJgMft6w/512fx384f"
-    },
-    {
-        name: "CZ75-Auto | Jungle Dashed",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpotaDyfgZfwOP3ZTxS6eOlnI-Zg8j-JrXWmm5u5Mx2gv2PoNyn2g3lqhFuYW_3d4-WcAE-MAvZ-QK5lLjog8C66smbznU1siVw7GGdwUJAMFqeHA/512fx384f"
-    },
-    {
-        name: "Desert Eagle | Kumicho Dragon",
-        image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLZTjlH_9mkgIWKkPvxDLDEm2JS4Mp1mOjG-oLKhF2zowdyN2qhJIPHJlA_MlyGrwK9yO7njJS_uszIynRjuSNw5y6LyR211BBNZ_sv26KzzJfhhA/512fx384f"
-    }
-];
-
-const ITEM_WIDTH = 120; // px
-
-// Fisher–Yates shuffle
-function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-}
+const ITEM_WIDTH = 120;
+const TARGET_INDEX = 6; // vị trí bạn muốn dừng
 
 export default function OpenCase() {
     const { caseId } = useParams();
     const [rolling, setRolling] = useState(false);
+    const [rewardItems, setRewardItems] = useState([]);
+    const [displayItems, setDisplayItems] = useState([]);
+
     const stripRef = useRef(null);
     const containerRef = useRef(null);
     const animRef = useRef(null);
 
-    // Đây là mảng sẽ shuffle mỗi lượt
-    const [order, setOrder] = useState(skins);
+    // Load data hòm
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch(
+                    `${process.env.REACT_APP_API_BASE_URL}/api/chest_info/${caseId}`,
+                    { credentials: 'include' }
+                );
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Không thể tải dữ liệu hòm!');
+                    return;
+                }
+                const items =
+                    data.type === 'cash'
+                        ? data.reward_values.map(v => ({
+                            name: `$${v}`,
+                        }))
+                        : data.skins;
+                setRewardItems(items);
+                setDisplayItems(items);
+            } catch (err) {
+                console.error(err);
+                alert('Lỗi khi tải dữ liệu hòm!');
+            }
+        })();
+    }, [caseId]);
 
-    const startRolling = () => {
-        if (rolling) return;
+    // Quay hòm
+    const startRolling = async () => {
+        if (rolling || !rewardItems.length) return;
         setRolling(true);
 
-        // 1) Shuffle mảng
-        const newOrder = shuffle([...skins]);
-        setOrder(newOrder);
+        // 1) Lấy kết quả
+        const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/open_chest`, {
+            method: 'POST',
+            credentials: 'include',      // nếu bạn cần gửi cookie JWT
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ chest_id: caseId })
+        });
+        const result = await res.json();
+        if (!res.ok) { alert(result.error); setRolling(false); return; }
 
-        // 2) triple-copy để đủ đồ bên trái / phải
-        const totalWidth = newOrder.length * ITEM_WIDTH;
-        let position = totalWidth;    // bắt đầu tại offset = 1 copy
-        let velocity = 30;            // px/frame
-        const t0 = performance.now();
+        const wonItem = result.skin
+            ? {
+                name: result.skin.name,
+                image: result.skin.image
+            }
+            : {
+                name: `$${result.reward}`,
+                image: `https://via.placeholder.com/${ITEM_WIDTH}x80?text=$${result.reward}`
+            };
 
+        // 2) Sắp xếp displayItems
+        let others = rewardItems.filter(it => it.name !== wonItem.name);
+        while (others.length < rewardItems.length - 1) others = [...others, ...others];
+        const arranged = [
+            ...others.slice(0, TARGET_INDEX),
+            wonItem,
+            ...others.slice(TARGET_INDEX)
+        ].slice(0, rewardItems.length);
+        setDisplayItems(arranged);
+
+        // 3) Chuẩn bị animation
+        const totalW = arranged.length * ITEM_WIDTH;
+        const startPos = totalW; // bắt đầu ở bản sao giữa
+        let pos = startPos;
+        let vel = 30;
+        const tStart = performance.now();
         const containerW = containerRef.current.clientWidth;
-        const centerPos = containerW / 2;
+        const center = containerW / 2;
 
+        // Đảm bảo tắt transition trước khi bắt đầu
+        stripRef.current.style.transition = 'none';
+        stripRef.current.style.transform = `translateX(${-startPos}px)`;
+
+        // 4) Chạy frame
         const frame = now => {
-            const elapsed = now - t0;
-            // 1.5s đầu chạy nhanh
-            if (elapsed > 1500) velocity *= 0.98;
-            position += velocity;
+            const dt = now - tStart;
+            if (dt > 1500) vel *= 0.98;
+            pos += vel;
+            stripRef.current.style.transform = `translateX(${- (pos % (totalW * 3))}px)`;
 
-            // map triple-array
-            stripRef.current.style.transform =
-                `translateX(${- (position % (totalWidth * 3))}px)`;
-
-            if (velocity > 0.5) {
+            if (vel > 0.5) {
                 animRef.current = requestAnimationFrame(frame);
             } else {
                 cancelAnimationFrame(animRef.current);
-
-                // Tính index real trong newOrder:
-                let rawIndex = (position + centerPos - ITEM_WIDTH / 2) / ITEM_WIDTH;
-                let index = Math.round(rawIndex) % newOrder.length;
-                if (index < 0) index += newOrder.length;
-
-                // Căn strip chính xác:
-                const finalOffset = index * ITEM_WIDTH - (centerPos - ITEM_WIDTH / 2);
-                // bắt đầu lại từ copy đầu tiên:
-                stripRef.current.style.transform =
-                    `translateX(${- (totalWidth + finalOffset)}px)`;
-
+                // Snap về đúng vị trí wonItem
+                stripRef.current.style.transition = 'none';
+                const offset = TARGET_INDEX * ITEM_WIDTH - (center - ITEM_WIDTH / 2);
+                stripRef.current.style.transform = `translateX(${-(totalW + offset)
+                    }px)`;
                 setTimeout(() => {
-                    alert(`🎉 Bạn đã nhận được skin: ${newOrder[index].name}`);
+                    alert(`🎉 Bạn đã nhận được: ${wonItem.name}`);
                     setRolling(false);
                 }, 300);
             }
@@ -140,24 +119,23 @@ export default function OpenCase() {
         animRef.current = requestAnimationFrame(frame);
     };
 
-    // Dãy hiển thị = 3 lần order
-    const display = [...order, ...order, ...order];
+    // hiển thị triple-copy
+    const display = [...displayItems, ...displayItems, ...displayItems];
 
     return (
         <div className="open-case-container">
             <h1>Mở Hòm #{caseId}</h1>
-
             <div className="case-strip-container" ref={containerRef}>
                 <div className="line" />
                 <div className="case-strip" ref={stripRef}>
-                    {display.map((skin, i) => (
+                    {display.map((item, i) => (
                         <div className="item" key={i}>
-                            <img src={skin.image} alt={skin.name} />
+                            {/* <img src={item.image} alt={item.name} /> */}
+                            <p>{item.name}</p>
                         </div>
                     ))}
                 </div>
             </div>
-
             <button
                 className="open-button"
                 onClick={startRolling}
