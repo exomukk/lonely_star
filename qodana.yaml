@@ -1,20 +1,25 @@
-version: "1.0"
+version: "1.1"
 
-linters:
-  - jetbrains/qodana-python:2025.1
-  - jetbrains/qodana-js:2025.1
+modules:
+  - name: python
+    linter: jetbrains/qodana-python:2025.1
+    profile: qodana.recommended
+    filters:
+      include:
+        - path: "**/*.py"
+      exclude:
+        - path: "frontend/node_modules/**"
+        - path: "frontend/build/**"
 
-profiles:
-  - name: qodana.recommended      # for Python
-  - name: qodana.js-recommended   # for JS/TS
-
-filters:
-  include:
-    - path: "**/*.py"
-    - path: "**/*.js"
-    - path: "**/*.jsx"
-    - path: "**/*.ts"
-    - path: "**/*.tsx"
-  exclude:
-    - path: "frontend/node_modules/**"
-    - path: "frontend/build/**"
+  - name: javascript
+    linter: jetbrains/qodana-javascript:2025.1
+    profile: qodana.js-recommended
+    filters:
+      include:
+        - path: "**/*.js"
+        - path: "**/*.jsx"
+        - path: "**/*.ts"
+        - path: "**/*.tsx"
+      exclude:
+        - path: "frontend/node_modules/**"
+        - path: "frontend/build/**"
