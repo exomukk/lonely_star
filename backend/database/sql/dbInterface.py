@@ -206,7 +206,7 @@ class DatabaseInterface:
         row = cursor.fetchone()
         same_hit_count = row["cnt"] if row else 0
 
-        if same_hit_count >= 10:
+        if same_hit_count >= 1000:
             cursor.close()
             connection.close()
             return True
