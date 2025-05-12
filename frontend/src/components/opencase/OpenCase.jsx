@@ -130,7 +130,7 @@ export default function OpenCase() {
                 <div className="case-strip" ref={stripRef}>
                     {display.map((item, i) => (
                         <div className="item" key={i}>
-                            {/* <img src={item.image} alt={item.name} /> */}
+                            {<img src={item.image} alt={item.name} />}
                             <p>{item.name}</p>
                         </div>
                     ))}

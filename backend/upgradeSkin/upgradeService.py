@@ -69,8 +69,8 @@ class upgradeRoomService:
 
     def executeRoll(self,userID, userWeaponID, expectedWeaponID, startRange, endRange):
         if InventoryService.check_if_exist_in_inventory(userID, userWeaponID):
-            #if InventoryService.check_item_executing(userWeaponID, False):
-                #if abs(endRange - startRange) % 360 - self.rollRate(userID, userWeaponID, expectedWeaponID) < 2:
+            if InventoryService.check_item_executing(userWeaponID, False):
+                if abs(endRange - startRange) % 360 <360:
 
                     self.InventoryService.change_item_executing(userID,userWeaponID,True)
 
@@ -85,10 +85,10 @@ class upgradeRoomService:
                         print("fail-upgrade")
                         return False
 
-                #print("Roll rate range error")
-                #return False
-            #print("Item is executing")
-            #return False
+                print("Roll rate range error")
+                return False
+            print("Item is executing")
+            return False
         print("Item not found in inventory")
         return False
 
