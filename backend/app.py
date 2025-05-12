@@ -23,6 +23,8 @@ from gun.gun_service import GunService
 from inventory.inventory_service import sell_item_from_inventory
 from chest.chest_service import get_all_chests, get_chest_by_id, random_rarity
 from inventory.inventory_service import (get_inventory,add_item_to_inventory,check_item_executing,change_item_executing)
+from database.nosql.insert_chests import chest_init
+chest_init = chest_init()
 from otp.otp_service import otp_service
 gun_service = GunService()
 from server_performance.server_performance_interface import server_performance_interface
@@ -510,4 +512,5 @@ def check_if_token_in_blocklist(jwt_header, jwt_payload):
     return token_in_blocklist
 
 if __name__ == '__main__':
+    chest_init.insert_chests()
     app.run(ssl_context=context,debug=True)

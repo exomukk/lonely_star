@@ -64,12 +64,18 @@ chests = [
         "reward_values": [0, 0, 10, 20, 100]
     }
 ]
+class chest_init:
+    def __init__(self):
+        self.chests = chests
+        self.chest_collection = chest_collection
 
-# Xoá toàn bộ dữ liệu cũ trước khi insert mới
-chest_collection.delete_many({})
+    def insert_chests(self):
+        # Xoá toàn bộ dữ liệu cũ trước khi insert mới
+        self.chest_collection.delete_many({})
 
-# Insert nhiều hòm một lần
-chest_collection.insert_many(chests)
+        # Insert nhiều hòm một lần
+        self.chest_collection.insert_many(self.chests)
+
 
 
 print("Inserted chests successfully!")
