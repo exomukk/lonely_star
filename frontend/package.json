@@ -22,7 +22,7 @@
   "axios": "^1.9.0",
   "qrcode": "^1.5.4",
   "@testing-library/dom": "^10.4.0",
-  "@testing-library/jest-dom": "^6.6.3",
+  "@testing-library/jest-dom": "^6.6.4",
   "@testing-library/react": "^16.2.0",
   "@testing-library/user-event": "^13.5.0"
   },
